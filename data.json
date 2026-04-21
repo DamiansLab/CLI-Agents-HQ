@@ -1,0 +1,264 @@
+{
+  "workstations": [
+    {
+      "id": "6ei1iky8q",
+      "name": "Charlie #288",
+      "avatar": "🦸",
+      "hasNotification": false,
+      "status": "offline",
+      "chatHistory": []
+    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "breakRoomAgents": [],
+  "logs": [
+    {
+      "id": "wdnt3tlcx",
+      "timestamp": "2:56:59 μ.μ.",
+      "message": "Agent Damian has been terminated.",
+      "type": "error"
+    },
+    {
+      "id": "hezji5rp5",
+      "timestamp": "2:57:04 μ.μ.",
+      "message": "Hired new agent: George #489",
+      "type": "success"
+    },
+    {
+      "id": "njmgiohkr",
+      "timestamp": "3:09:11 μ.μ.",
+      "message": "Agent Stella has been terminated.",
+      "type": "error"
+    },
+    {
+      "id": "84r3gi50r",
+      "timestamp": "3:09:12 μ.μ.",
+      "message": "Hired new agent: Oscar #160",
+      "type": "success"
+    },
+    {
+      "id": "zbkp5jpcs",
+      "timestamp": "3:11:12 μ.μ.",
+      "message": "[up4m] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "xpqwzkhp8",
+      "timestamp": "3:11:26 μ.μ.",
+      "message": "Hired new agent: Ian #564",
+      "type": "success"
+    },
+    {
+      "id": "fupuzypkx",
+      "timestamp": "3:11:28 μ.μ.",
+      "message": "[up4m] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "nq57xwgkq",
+      "timestamp": "3:11:34 μ.μ.",
+      "message": "Hired new agent: Alice #545",
+      "type": "success"
+    },
+    {
+      "id": "q3s519tvc",
+      "timestamp": "3:11:57 μ.μ.",
+      "message": "[z2ik] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "8lqegee6o",
+      "timestamp": "3:12:18 μ.μ.",
+      "message": "Hired new agent: Bob #861",
+      "type": "success"
+    },
+    {
+      "id": "u5ucjekx0",
+      "timestamp": "3:14:28 μ.μ.",
+      "message": "Hired new agent: Ian #733",
+      "type": "success"
+    },
+    {
+      "id": "t6p2ml1af",
+      "timestamp": "3:19:11 μ.μ.",
+      "message": "Agent has been terminated.",
+      "type": "error"
+    },
+    {
+      "id": "i5nfhjap0",
+      "timestamp": "3:19:13 μ.μ.",
+      "message": "Hired new agent: Oscar #38",
+      "type": "success"
+    },
+    {
+      "id": "17qf7os22",
+      "timestamp": "3:19:17 μ.μ.",
+      "message": "[awst] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "7qvw3o9ox",
+      "timestamp": "3:20:58 μ.μ.",
+      "message": "[5ba7] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "vfl1ybeh3",
+      "timestamp": "3:21:43 μ.μ.",
+      "message": "[5ba7] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "6r3p9bbp8",
+      "timestamp": "3:22:04 μ.μ.",
+      "message": "[5ba7] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "52ulc3zb4",
+      "timestamp": "3:22:10 μ.μ.",
+      "message": "[5ba7] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "mn3krg09w",
+      "timestamp": "3:22:38 μ.μ.",
+      "message": "[5ba7] ERROR: No input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "dz3q6l5up",
+      "timestamp": "3:24:52 μ.μ.",
+      "message": "[5ba7] ERROR: YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\nNo input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "bzz6wlsmp",
+      "timestamp": "3:25:04 μ.μ.",
+      "message": "[5ba7] ERROR: YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\nNo input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "jg6tlvasd",
+      "timestamp": "3:25:14 μ.μ.",
+      "message": "[5ba7] ERROR: Error: Agent process not running. Please restart or open terminal.\n",
+      "type": "error"
+    },
+    {
+      "id": "vg0c16hmi",
+      "timestamp": "3:25:31 μ.μ.",
+      "message": "[5ba7] ERROR: YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\nNo input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "cwoifuiwt",
+      "timestamp": "3:28:27 μ.μ.",
+      "message": "[5ba7] ERROR: YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\nNo input provided via stdin. Input can be provided by piping data into gemini or using the --prompt option.\n",
+      "type": "error"
+    },
+    {
+      "id": "ko5xyrjos",
+      "timestamp": "3:28:30 μ.μ.",
+      "message": "[5ba7] ERROR: YOLO mode is enabled. All tool calls will be automatically approved.\nYOLO mode is enabled. All tool calls will be automatically approved.\n",
+      "type": "error"
+    },
+    {
+      "id": "pyddanpr5",
+      "timestamp": "3:28:39 μ.μ.",
+      "message": "Agent response from 5ba7: I will list the files in the root directory.\nThe f...",
+      "type": "info"
+    },
+    {
+      "id": "qvpxuwx6a",
+      "timestamp": "3:29:39 μ.μ.",
+      "message": "Agent is on break.",
+      "type": "info"
+    },
+    {
+      "id": "uusalme88",
+      "timestamp": "3:29:43 μ.μ.",
+      "message": "Agent has been terminated.",
+      "type": "error"
+    },
+    {
+      "id": "fialkohl5",
+      "timestamp": "3:29:55 μ.μ.",
+      "message": "Hired new agent: Laura #75",
+      "type": "success"
+    },
+    {
+      "id": "b6sld6327",
+      "timestamp": "3:29:58 μ.μ.",
+      "message": "Agent is on break.",
+      "type": "info"
+    },
+    {
+      "id": "ncc9fvgge",
+      "timestamp": "3:31:31 μ.μ.",
+      "message": "Agent is back to work.",
+      "type": "info"
+    },
+    {
+      "id": "7aexxvfsa",
+      "timestamp": "3:31:40 μ.μ.",
+      "message": "Agent has been terminated.",
+      "type": "error"
+    },
+    {
+      "id": "e3467ej20",
+      "timestamp": "3:31:44 μ.μ.",
+      "message": "Hired new agent: Julia #869",
+      "type": "success"
+    },
+    {
+      "id": "kq65p0yra",
+      "timestamp": "3:31:49 μ.μ.",
+      "message": "Agent is on break.",
+      "type": "info"
+    },
+    {
+      "id": "xguur2n4t",
+      "timestamp": "3:31:53 μ.μ.",
+      "message": "Agent is back to work.",
+      "type": "info"
+    },
+    {
+      "id": "g4i5857dg",
+      "timestamp": "3:31:59 μ.μ.",
+      "message": "Agent is on break.",
+      "type": "info"
+    },
+    {
+      "id": "y3ld39t0q",
+      "timestamp": "3:35:39 μ.μ.",
+      "message": "Agent has been terminated.",
+      "type": "error"
+    },
+    {
+      "id": "3iw29q1bw",
+      "timestamp": "3:35:41 μ.μ.",
+      "message": "Hired new agent: Charlie #288",
+      "type": "success"
+    },
+    {
+      "id": "ua625svs1",
+      "timestamp": "3:35:44 μ.μ.",
+      "message": "Charlie #288 is on break.",
+      "type": "info"
+    },
+    {
+      "id": "css7kdnet",
+      "timestamp": "3:35:46 μ.μ.",
+      "message": "Charlie #288 is back to work.",
+      "type": "info"
+    }
+  ]
+}
