@@ -1,0 +1,16 @@
+To achieve what you're asking—hosting the "Dashboard" on the web but having it control your local machine—you would
+  need a "Bridge" architecture:
+
+   1. Remote Dashboard (Server A): Hosted on Plesk/Papaki. This serves the UI and manages the "State" (who is in the
+      break room, agent names, etc.).
+   2. Local Agent (Server B): A tiny Node.js script running on your local machine. It would connect outbound to Server A
+      (via WebSockets).
+   3. The Flow:
+       * You type a message on the Web Dashboard.
+       * The Web Dashboard sends that message to your "Local Agent" via the socket.
+       * Your Local Agent runs gemini locally and reads your local files.
+       * The Local Agent sends the result back to the Web Dashboard.
+
+  Summary: The current app is a "Monolith" where the UI, the Logic, and the CLI must all live on the same machine.
+  Splitting them requires a significant refactor to allow the backend to delegate tasks to a remote "worker" (your local
+  PC).

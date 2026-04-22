@@ -20,6 +20,8 @@ interface Agent {
   hasNotification?: boolean;
   status?: 'idle' | 'thinking' | 'offline';
   chatHistory?: ChatMessage[];
+  terminalHistory?: string[];
+  skillId?: string;
 }
 
 interface LogEntry {
@@ -48,6 +50,7 @@ function App() {
     view: 'profile' | 'terminal' | 'chat' | 'folder'
   } | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -105,6 +108,13 @@ function App() {
       if (type === 'error') {
         addLog(`[${agentId.substr(0,4)}] ERROR: ${data}`, 'error');
       }
+
+      setWorkstations(prev => prev.map(a => 
+        a?.id === agentId ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
+      ));
+      setBreakRoomAgents(prev => prev.map(a => 
+        a.id === agentId ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
+      ));
     });
 
     fetch('/api/state')
@@ -260,7 +270,25 @@ function App() {
     <div className="App">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 style={{ color: '#ecf0f1', margin: 0, textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>CLI AGENTS HQ</h1>
-        <button onClick={hireAgent} className="hire-btn">➕ HIRE NEW AGENT</button>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => setShowLogs(true)} 
+            style={{
+              padding: '12px 24px',
+              fontSize: '18px',
+              backgroundColor: '#607d8b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 0 #455a64',
+            }}
+          >
+            📟 SYSTEM LOGS
+          </button>
+          <button onClick={hireAgent} className="hire-btn">➕ HIRE NEW AGENT</button>
+        </div>
       </div>
 
       <div className="office-grid">
@@ -301,31 +329,92 @@ function App() {
         })}
       </div>
 
-      {/* Terminal Console */}
-      <div className="terminal-console">
-        <div className="terminal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>SYSTEM_TERMINAL_LOGS v1.0.4</span>
-          <button onClick={clearLogs} style={{ 
-            background: '#444', 
-            color: '#aaa', 
-            border: 'none', 
-            fontSize: '10px', 
-            padding: '2px 8px', 
-            cursor: 'pointer',
-            borderRadius: '2px'
-          }}>CLEAR_LOGS</button>
-        </div>
-        {logs.map(log => (
-          <div key={log.id} style={{ marginBottom: '4px', fontSize: '14px' }}>
-            <span style={{ color: '#666' }}>[{log.timestamp}]</span>{' '}
-            <span style={{ color: log.type === 'success' ? '#0f0' : log.type === 'error' ? '#f55' : log.type === 'warning' ? '#ff0' : '#0cf' }}>
-              {log.type.toUpperCase()}:
-            </span>{' '}
-            {log.message}
+      {/* Global Logs Modal */}
+      {showLogs && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 4000
+        }} onClick={() => setShowLogs(false)}>
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: '15px',
+            width: '800px',
+            maxWidth: '90%',
+            height: '600px',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ 
+              padding: '15px 20px', 
+              backgroundColor: '#2c3e50', 
+              color: 'white', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center' 
+            }}>
+              <h3 style={{ margin: 0 }}>📟 Global System Logs</h3>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => { setLogs([]); }}
+                  style={{ 
+                    padding: '5px 15px', 
+                    fontSize: '12px', 
+                    backgroundColor: 'rgba(255,255,255,0.1)', 
+                    color: '#fff',
+                    border: '1px solid rgba(255,255,255,0.3)',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Clear History
+                </button>
+                <button 
+                  onClick={() => setShowLogs(false)}
+                  style={{ 
+                    background: 'none', 
+                    border: 'none', 
+                    color: 'white', 
+                    fontSize: '24px', 
+                    cursor: 'pointer',
+                    lineHeight: '1'
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            <div style={{ 
+              flexGrow: 1, 
+              overflowY: 'auto', 
+              backgroundColor: '#1e1e1e', 
+              padding: '20px', 
+              fontFamily: 'monospace',
+              fontSize: '13px'
+            }}>
+              {logs.map(log => (
+                <div key={log.id} style={{ marginBottom: '8px', color: log.type === 'error' ? '#ff5252' : log.type === 'success' ? '#4caf50' : '#d4d4d4' }}>
+                  <span style={{ color: '#888', marginRight: '10px' }}>[{log.timestamp}]</span>
+                  <span style={{ color: log.type === 'info' ? '#3498db' : 'inherit', fontWeight: log.type === 'error' ? 'bold' : 'normal' }}>
+                    {log.type.toUpperCase()}:
+                  </span> {log.message}
+                </div>
+              ))}
+              {logs.length === 0 && <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', marginTop: '100px' }}>No global events recorded.</div>}
+              <div ref={logEndRef} />
+            </div>
           </div>
-        ))}
-        <div ref={logEndRef} />
-      </div>
+        </div>
+      )}
 
       {selectedAgent && (
         <AgentCard 

@@ -27,6 +27,7 @@ interface Agent {
   avatar?: string;
   status?: 'idle' | 'thinking' | 'offline';
   chatHistory?: ChatMessage[];
+  skillId?: string;
 }
 
 interface ChatWindowProps {
@@ -98,7 +99,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
         chatHistory: [...messages, newMessage]
       });
 
-      socket.emit('chat-message', { agentId: agent.id, message: msgText });
+      socket.emit('chat-message', { agentId: agent.id, message: msgText, skillId: agent.skillId });
       setInput("");
     }
   };

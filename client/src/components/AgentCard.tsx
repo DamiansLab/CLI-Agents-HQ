@@ -8,6 +8,13 @@ interface Agent {
   workingDirectory?: string;
   hasNotification?: boolean;
   status?: 'idle' | 'thinking' | 'offline';
+  terminalHistory?: string[];
+  skillId?: string;
+}
+
+interface Skill {
+  id: string;
+  name: string;
 }
 
 interface AgentCardProps {
@@ -45,12 +52,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const [name, setName] = useState(agent.name);
   const [isEditing, setIsEditing] = useState(false);
   
-  // Terminal State
-  const [terminalOutput, setTerminalOutput] = useState<string[]>([]);
+  // Terminal State (Using agent prop for history)
+  const terminalHistory = agent.terminalHistory || [];
   const [terminalInput, setTerminalInput] = useState("");
+  const terminalEndRef = useRef<HTMLDivElement>(null);
   
-  // Chat State
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  // Chat State (Using agent prop for history)
+  const chatMessages = agent.chatHistory || [];
   const [chatInput, setChatInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement>(null);
   
@@ -59,42 +67,30 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const [folders, setFolders] = useState<string[]>([]);
   const [files, setFiles] = useState<string[]>([]);
   const [parentPath, setParentPath] = useState("");
+  const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
+
+  useEffect(() => {
+    fetch('/api/skills')
+      .then(res => res.json())
+      .then(data => setAvailableSkills(data))
+      .catch(err => console.error('Error fetching skills:', err));
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
     
-    const onTerminalOutput = (data: { agentId: string, data: string }) => {
-      if (data.agentId === agent.id) {
-        setTerminalOutput(prev => [...prev, data.data].slice(-500)); // Keep last 500 chunks
-      }
-    };
-
-    const onAgentResponse = (data: { agentId: string, text: string }) => {
-      if (data.agentId === agent.id) {
-        setChatMessages(prev => [...prev, {
-          sender: 'agent',
-          text: data.text,
-          timestamp: new Date().toLocaleTimeString()
-        }]);
-      }
-    };
-
-    socket.on('terminal-output', onTerminalOutput);
-    socket.on('agent-response', onAgentResponse);
-
     if (view === 'terminal' || view === 'chat') {
       socket.emit('start-terminal', { agentId: agent.id, directory: agent.workingDirectory });
     }
-
-    return () => {
-      socket.off('terminal-output', onTerminalOutput);
-      socket.off('agent-response', onAgentResponse);
-    };
   }, [agent.id, view, agent.workingDirectory, socket]);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
+
+  useEffect(() => {
+    terminalEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [terminalHistory]);
 
   const handleTerminalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,12 +104,14 @@ const AgentCard: React.FC<AgentCardProps> = ({
     e.preventDefault();
     if (chatInput.trim() && socket) {
       const msg = chatInput;
-      setChatMessages(prev => [...prev, {
-        sender: 'user',
-        text: msg,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
-      socket.emit('chat-message', { agentId: agent.id, message: msg });
+      onUpdateAgent(agent.id, {
+        chatHistory: [...chatMessages, {
+          sender: 'user',
+          text: msg,
+          timestamp: new Date().toLocaleTimeString()
+        }]
+      });
+      socket.emit('chat-message', { agentId: agent.id, message: msg, skillId: agent.skillId });
       setChatInput("");
     }
   };
@@ -162,6 +160,47 @@ const AgentCard: React.FC<AgentCardProps> = ({
       socket.emit('restart-agent', { agentId: agent.id, directory: currentPath });
     }
     setView('profile');
+  };
+
+  const clearTerminal = () => {
+    if (window.confirm("Clear terminal history for this agent?")) {
+      onUpdateAgent(agent.id, { terminalHistory: [] });
+    }
+  };
+
+  const [isReflecting, setIsReflecting] = useState(false);
+  const handleReflect = async () => {
+    if (!agent.skillId) {
+      alert("Assign a role first before reflecting.");
+      return;
+    }
+    if (chatMessages.length < 2) {
+      alert("Not enough conversation to learn from yet.");
+      return;
+    }
+
+    setIsReflecting(true);
+    try {
+      const res = await fetch('/api/reflect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: agent.id,
+          skillId: agent.skillId,
+          chatHistory: chatMessages
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Learned successfully!\n\nNew Insights:\n${data.reflection}`);
+      } else {
+        alert(`Reflection failed: ${data.error}`);
+      }
+    } catch (err) {
+      alert("Error during reflection.");
+    } finally {
+      setIsReflecting(false);
+    }
   };
 
   return (
@@ -223,6 +262,27 @@ const AgentCard: React.FC<AgentCardProps> = ({
                   </div>
                 )}
               </div>
+
+              <div style={{ marginBottom: '25px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', color: '#666', marginBottom: '5px' }}>ASSIGN ROLE / SKILL:</label>
+                <select 
+                  value={agent.skillId || ""} 
+                  onChange={(e) => onUpdateAgent(agent.id, { skillId: e.target.value })}
+                  style={{ 
+                    width: '100%', 
+                    padding: '8px', 
+                    borderRadius: '5px', 
+                    border: '1px solid #ddd',
+                    fontSize: '14px',
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  <option value="">No Special Skill (Generalist)</option>
+                  {availableSkills.map(s => (
+                    <option key={s.id} value={s.id}>{s.name}</option>
+                  ))}
+                </select>
+              </div>
               <div style={{ fontSize: '13px', color: '#666', marginBottom: '20px', backgroundColor: '#f0f4f8', padding: '10px', borderRadius: '5px' }}>
                 <strong>Status:</strong> <span style={{ color: agent.status === 'thinking' ? '#f39c12' : agent.status === 'idle' ? '#27ae60' : '#7f8c8d' }}>
                   {agent.status?.toUpperCase() || 'OFFLINE'}
@@ -243,6 +303,17 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
           {view === 'terminal' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+                <button onClick={clearTerminal} style={{ 
+                  background: '#444', 
+                  color: '#fff', 
+                  border: 'none', 
+                  padding: '4px 10px', 
+                  borderRadius: '4px', 
+                  fontSize: '11px', 
+                  cursor: 'pointer' 
+                }}>Clear Logs</button>
+              </div>
               <div style={{ 
                 flexGrow: 1, 
                 backgroundColor: '#1e1e1e', 
@@ -254,8 +325,9 @@ const AgentCard: React.FC<AgentCardProps> = ({
                 overflowY: 'auto',
                 whiteSpace: 'pre-wrap'
               }}>
-                {terminalOutput.join('')}
-                {!terminalOutput.length && "Terminal initialized. Waiting for output..."}
+                {terminalHistory.join('')}
+                {!terminalHistory.length && "Terminal initialized. Waiting for output..."}
+                <div ref={terminalEndRef} />
               </div>
               <form onSubmit={handleTerminalSubmit} style={{ marginTop: '10px', display: 'flex' }}>
                 <span style={{ color: '#0f0', padding: '5px' }}>&gt;</span>
@@ -278,6 +350,24 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
           {view === 'chat' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+                <button 
+                  onClick={handleReflect} 
+                  disabled={isReflecting || chatMessages.length < 2}
+                  style={{ 
+                    background: '#673ab7', 
+                    color: '#fff', 
+                    border: 'none', 
+                    padding: '6px 12px', 
+                    borderRadius: '4px', 
+                    fontSize: '11px', 
+                    cursor: 'pointer',
+                    opacity: (isReflecting || chatMessages.length < 2) ? 0.5 : 1
+                  }}
+                >
+                  {isReflecting ? "🧠 Learning..." : "✨ End Session & Reflect"}
+                </button>
+              </div>
               <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: '15px', padding: '5px' }}>
                 {chatMessages.map((m, i) => (
                   <div key={i} style={{ 

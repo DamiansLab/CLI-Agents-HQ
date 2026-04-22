@@ -16,11 +16,89 @@ const io = new Server(server, {
 
 const port = process.env.PORT || 3000;
 const dataFilePath = path.join(__dirname, 'data.json');
+const skillsDirPath = path.join(__dirname, 'skills');
 
 app.use(express.static(path.join(__dirname, 'client/dist')));
 app.use(express.json());
 
-// --- Process Management ---
+// --- Skills Management ---
+const getSkillContent = (skillId) => {
+  if (!skillId) return "";
+  const filePath = path.join(skillsDirPath, `${skillId}.md`);
+  try {
+    if (fs.existsSync(filePath)) {
+      return fs.readFileSync(filePath, 'utf8');
+    }
+  } catch (err) {
+    console.error(`Error reading skill ${skillId}:`, err);
+  }
+  return "";
+};
+
+app.get('/api/skills', (req, res) => {
+  try {
+    if (!fs.existsSync(skillsDirPath)) {
+      return res.json([]);
+    }
+    const files = fs.readdirSync(skillsDirPath);
+    const skills = files
+      .filter(f => f.endsWith('.md'))
+      .map(f => {
+        const id = f.replace('.md', '');
+        // Convert PascalCase to Spaced Name (e.g. BugHunter -> Bug Hunter)
+        const name = id.replace(/([A-Z])/g, ' $1').trim();
+        return { id, name };
+      });
+    res.json(skills);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/reflect', (req, res) => {
+  const { agentId, skillId, chatHistory } = req.body;
+  if (!skillId || !chatHistory || chatHistory.length === 0) {
+    return res.status(400).json({ error: "Missing data for reflection" });
+  }
+
+  const filePath = path.join(skillsDirPath, `${skillId}.md`);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ error: "Skill file not found" });
+  }
+
+  const recentConversation = chatHistory.slice(-10).map(m => `${m.sender}: ${m.text}`).join('\n');
+  const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time? Provide exactly 3-4 bullet points starting with "-".\n\nCONVERSATION:\n${recentConversation}`;
+
+  console.log(`[REFLECTING] Agent ${agentId} learning for skill ${skillId}...`);
+
+  const proc = spawn('gemini', [`"${reflectionPrompt.replace(/"/g, '\\"')}"`], { shell: true });
+  let reflection = '';
+
+  proc.stdout.on('data', (data) => { reflection += data.toString(); });
+  
+  proc.on('close', (code) => {
+    if (code === 0 && reflection.trim()) {
+      try {
+        let content = fs.readFileSync(filePath, 'utf8');
+        const lessonMarker = "## Lessons Learned";
+        if (content.includes(lessonMarker)) {
+          const newContent = content + `\n${reflection.trim()}\n`;
+          fs.writeFileSync(filePath, newContent, 'utf8');
+          res.json({ success: true, reflection: reflection.trim() });
+        } else {
+          res.json({ success: false, error: "Marker not found" });
+        }
+      } catch (err) {
+        res.status(500).json({ error: err.message });
+      }
+    } else {
+      res.status(500).json({ error: "Reflection failed" });
+    }
+  });
+});
+
+// --- State Management ---
+
 const processes = new Map(); // agentId -> { proc, isThinking, cwd }
 
 const stopProcess = (agentId) => {
@@ -122,19 +200,36 @@ io.on('connection', (socket) => {
     startAgentProcess(agentId, directory, socket);
   });
 
-  socket.on('chat-message', ({ agentId, message }) => {
+  socket.on('chat-message', ({ agentId, message, skillId }) => {
     const agentData = processes.get(agentId);
     const cwd = agentData?.cwd || process.cwd();
     
-    console.log(`[USER -> ${agentId}] ${message}`);
+    // If a process is already running, treat this message as input to that process
+    if (agentData && agentData.proc) {
+      console.log(`[USER INPUT -> ${agentId}] ${message}`);
+      agentData.proc.stdin.write(message + '\n');
+      socket.emit('terminal-output', { agentId, data: `\n[Chat Input] > ${message}\n` });
+      return;
+    }
+
+    console.log(`[USER -> ${agentId}] ${message} (Skill: ${skillId || 'none'})`);
     socket.emit('agent-status', { agentId, status: 'thinking' });
+    if (agentData) agentData.isThinking = true;
     
-    // Using positional query argument for Windows shell reliability
-    const proc = spawn('gemini', [`"${message}"`, '--yolo'], { 
+    const skillContent = getSkillContent(skillId);
+    const fullPrompt = skillContent 
+      ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}`
+      : message;
+
+    const proc = spawn('gemini', [`"${fullPrompt.replace(/"/g, '\\"')}"`], { 
       cwd, 
       shell: true,
       env: { ...process.env, FORCE_COLOR: "1" }
     });
+
+    if (agentData) {
+      agentData.proc = proc;
+    }
 
     let output = '';
 
@@ -142,18 +237,31 @@ io.on('connection', (socket) => {
       const text = data.toString();
       output += text;
       socket.emit('terminal-output', { agentId, data: text });
+
+      // Improved detection for interactive prompts (Y/N, selections, or open questions)
+      const isPrompt = text.match(/\? \[[yYnN/]+\]/) || 
+                       text.match(/\(\d+-\d+\)/) || // Selection ranges like (1-5)
+                       text.includes('Selection:') || 
+                       text.includes('Confirm?') || 
+                       (text.trim().endsWith('?') && text.length < 100) ||
+                       text.trim().endsWith(':');
+
+      if (isPrompt) {
+        socket.emit('agent-response', { 
+          agentId, 
+          text: "⚠️ I'm waiting for your input. You can type your choice (e.g. 1, 'yes', or a specific name) right here in the chat or in the terminal." 
+        });
+      }
     });
 
     proc.stderr.on('data', (data) => {
       const text = data.toString();
-      if (!text.includes('YOLO mode')) {
-        socket.emit('terminal-output', { agentId, data: text, type: 'error' });
-      } else {
-        socket.emit('terminal-output', { agentId, data: text });
-      }
+      socket.emit('terminal-output', { agentId, data: text, type: 'error' });
     });
 
     proc.on('close', (code) => {
+      if (agentData) agentData.proc = null;
+      
       if (output.trim()) {
         socket.emit('agent-response', { agentId, text: output });
       } else if (code !== 0) {
@@ -161,6 +269,18 @@ io.on('connection', (socket) => {
       }
       socket.emit('agent-status', { agentId, status: 'idle' });
     });
+  });
+
+  socket.on('terminal-input', ({ agentId, input }) => {
+    const agentData = processes.get(agentId);
+    if (agentData && agentData.proc) {
+      console.log(`[USER INPUT -> ${agentId}] ${input}`);
+      agentData.proc.stdin.write(input + '\n');
+      // Also echo the input to the terminal view
+      socket.emit('terminal-output', { agentId, data: `\n> ${input}\n` });
+    } else {
+      socket.emit('terminal-output', { agentId, data: `[No active process to receive input]\n`, type: 'error' });
+    }
   });
 
   socket.on('disconnect', () => {
