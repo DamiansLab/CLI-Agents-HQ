@@ -5,6 +5,40 @@
 
 An interactive, high-fidelity orchestration dashboard for managing multiple Gemini CLI agents. This app transforms your desktop into a professional multi-agent command center with persistent memory, team collaboration, and a dynamic office ecosystem.
 
+## 🎮 How to Use
+
+1. **Hire & Assign:** Hire agents and click their desks to assign specialized roles.
+2. **Set the Brief:** Use **📋 BRIEF** in the header to set global project rules.
+3. **Assign Folders:** Use the **Files** tab on an agent's card to lock them into a specific directory. Look for the **✅ SAVED!** confirmation.
+4. **Collaborate:** Click **🤝 CONFERENCE** to start a multi-specialist brainstorm.
+5. **Level Up:** Use the **✨ Reflect** button to help agents learn and gain XP. Senior agents get upgraded workstations!
+6. **Lounge Management:** Use the **☕ LOUNGE** to manage off-duty agents. You can recall multiple agents in batch before closing the lounge.
+7. **System Diagnostics:** Access the **📟 Logs** modal for real-time tracking of agent activity and error handling.
+<img 
+  src="https://github.com/user-attachments/assets/046c1b3c-506f-4b44-99ec-6d250f7624e7" 
+  alt="image" 
+  style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+/>
+<img 
+   src="https://github.com/user-attachments/assets/046c1b3c-506f-4b44-99ec-6d250f7624e7" 
+   alt="image" 
+   style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+   />
+<img 
+   alt="image" 
+   style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+   src="https://github.com/user-attachments/assets/492336ef-f23c-4938-bcfa-b1cc546da2a5" 
+   />
+<img
+   alt="image" 
+   style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+   src="https://github.com/user-attachments/assets/251863dc-e3c2-4627-ab03-1c37154bcb57" 
+   />
+
+
+
+
+
 ## 🚀 Key Features
 
 - **Isometric 3D Office Floor:** A tactile command center with a 3D perspective, realistic textures, and dynamic lighting that shifts between **Day & Night Mode** based on your local time.
@@ -53,16 +87,5 @@ cd client && npm run build && cd ..
 node server.js
 ```
 Open [http://localhost:5501](http://localhost:5501) (Dev) or [http://localhost:5500](http://localhost:5500) (Prod).
-
-## 🎮 How to Use
-
-1. **Hire & Assign:** Hire agents and click their desks to assign specialized roles.
-2. **Set the Brief:** Use **📋 BRIEF** in the header to set global project rules.
-3. **Assign Folders:** Use the **Files** tab on an agent's card to lock them into a specific directory. Look for the **✅ SAVED!** confirmation.
-4. **Collaborate:** Click **🤝 CONFERENCE** to start a multi-specialist brainstorm.
-5. **Level Up:** Use the **✨ Reflect** button to help agents learn and gain XP. Senior agents get upgraded workstations!
-6. **Lounge Management:** Use the **☕ LOUNGE** to manage off-duty agents. You can recall multiple agents in batch before closing the lounge.
-7. **System Diagnostics:** Access the **📟 Logs** modal for real-time tracking of agent activity and error handling.
-
 ---
 *Built for the next generation of AI-driven development.*
