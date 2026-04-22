@@ -39,9 +39,44 @@ interface ChatWindowProps {
 
 const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdateAgent }) => {
   const [input, setInput] = useState("");
+  const [isReflecting, setIsReflecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const messages = agent.chatHistory || [];
+
+  const handleReflect = async () => {
+    if (!agent.skillId) {
+      alert("Assign a role first in the agent profile.");
+      return;
+    }
+    if (messages.length < 2) {
+      alert("Not enough conversation to learn from yet.");
+      return;
+    }
+
+    setIsReflecting(true);
+    try {
+      const res = await fetch('/api/reflect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agentId: agent.id,
+          skillId: agent.skillId,
+          chatHistory: messages
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Learned successfully!\n\nNew Insights:\n${data.reflection}`);
+      } else {
+        alert(`Reflection failed: ${data.error}`);
+      }
+    } catch (err) {
+      alert("Error during reflection.");
+    } finally {
+      setIsReflecting(false);
+    }
+  };
 
   // Draggable State
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -110,6 +145,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
     }
   };
 
+  const stopAgent = () => {
+    if (socket) {
+      socket.emit('stop-agent', { agentId: agent.id });
+    }
+  };
+
   const forceRestart = () => {
     if (window.confirm("Force restart the Gemini process for this agent?")) {
       if (socket) {
@@ -158,6 +199,37 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
           </div>
         </div>
         <div style={{ display: 'flex', gap: '5px' }}>
+          {agent.status === 'thinking' && (
+            <button 
+              onClick={stopAgent} 
+              title="Stop Agent" 
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#f44336',
+                cursor: 'pointer',
+                fontSize: '14px',
+                padding: '5px'
+              }}
+            >
+              🛑
+            </button>
+          )}
+          <button 
+            onClick={handleReflect} 
+            disabled={isReflecting || messages.length < 2}
+            title="End Session & Reflect"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: (isReflecting || messages.length < 2) ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.6)',
+              cursor: (isReflecting || messages.length < 2) ? 'default' : 'pointer',
+              fontSize: '14px',
+              padding: '5px'
+            }}
+          >
+            {isReflecting ? "⏳" : "✨"}
+          </button>
           <button onClick={forceRestart} title="Force Restart Process" style={{
             background: 'none',
             border: 'none',

@@ -168,6 +168,12 @@ const AgentCard: React.FC<AgentCardProps> = ({
     }
   };
 
+  const stopAgent = () => {
+    if (socket) {
+      socket.emit('stop-agent', { agentId: agent.id });
+    }
+  };
+
   const [isReflecting, setIsReflecting] = useState(false);
   const handleReflect = async () => {
     if (!agent.skillId) {
@@ -303,7 +309,23 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
           {view === 'terminal' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '5px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '5px' }}>
+                {agent.status === 'thinking' && (
+                  <button 
+                    onClick={stopAgent} 
+                    style={{ 
+                      background: '#f44336', 
+                      color: '#fff', 
+                      border: 'none', 
+                      padding: '4px 10px', 
+                      borderRadius: '4px', 
+                      fontSize: '11px', 
+                      cursor: 'pointer' 
+                    }}
+                  >
+                    🛑 Stop Agent
+                  </button>
+                )}
                 <button onClick={clearTerminal} style={{ 
                   background: '#444', 
                   color: '#fff', 
@@ -350,7 +372,23 @@ const AgentCard: React.FC<AgentCardProps> = ({
 
           {view === 'chat' && (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '10px' }}>
+                {agent.status === 'thinking' && (
+                  <button 
+                    onClick={stopAgent} 
+                    style={{ 
+                      background: '#f44336', 
+                      color: '#fff', 
+                      border: 'none', 
+                      padding: '6px 12px', 
+                      borderRadius: '4px', 
+                      fontSize: '11px', 
+                      cursor: 'pointer' 
+                    }}
+                  >
+                    🛑 Stop Agent
+                  </button>
+                )}
                 <button 
                   onClick={handleReflect} 
                   disabled={isReflecting || chatMessages.length < 2}

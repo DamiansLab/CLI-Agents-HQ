@@ -51,6 +51,7 @@ function App() {
   } | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
+  const [showBreakRoom, setShowBreakRoom] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -287,6 +288,22 @@ function App() {
           >
             📟 SYSTEM LOGS
           </button>
+          <button 
+            onClick={() => setShowBreakRoom(true)} 
+            style={{
+              padding: '12px 24px',
+              fontSize: '18px',
+              backgroundColor: '#795548',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 0 #5d4037',
+            }}
+          >
+            ☕ BREAK ROOM ({breakRoomAgents.length})
+          </button>
           <button onClick={hireAgent} className="hire-btn">➕ HIRE NEW AGENT</button>
         </div>
       </div>
@@ -297,10 +314,65 @@ function App() {
         ))}
       </div>
 
-      <div className="break-room-container">
-        <div style={{ height: '10px', backgroundColor: '#2c3e50', width: '100%', marginBottom: '20px' }}></div>
-        <BreakRoom agents={breakRoomAgents} onClick={(a) => openAgent(a, 'profile')} />
-      </div>
+      {/* Break Room Modal */}
+      {showBreakRoom && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 4000
+        }} onClick={() => setShowBreakRoom(false)}>
+          <div style={{
+            backgroundColor: '#fff',
+            borderRadius: '15px',
+            width: '800px',
+            maxWidth: '90%',
+            maxHeight: '80vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+          }} onClick={e => e.stopPropagation()}>
+            <div style={{ 
+              padding: '15px 20px', 
+              backgroundColor: '#795548', 
+              color: 'white', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center' 
+            }}>
+              <h3 style={{ margin: 0 }}>☕ Agent Break Room</h3>
+              <button 
+                onClick={() => setShowBreakRoom(false)}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: 'white', 
+                  fontSize: '24px', 
+                  cursor: 'pointer',
+                  lineHeight: '1'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{ 
+              flexGrow: 1, 
+              overflowY: 'auto', 
+              padding: '30px', 
+              background: '#f5f5f5'
+            }}>
+              <BreakRoom agents={breakRoomAgents} onClick={(a) => { openAgent(a, 'profile'); setShowBreakRoom(false); }} />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Floating Chat Windows */}
       <div style={{
