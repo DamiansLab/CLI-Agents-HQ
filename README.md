@@ -1,3 +1,6 @@
+<img width="1911" height="894" alt="image" src="https://github.com/user-attachments/assets/b87cfddb-2cd6-46e8-bbf1-55dc1a899ea1" />
+
+
 # 🤖 CLI Agents HQ
 
 An interactive, high-fidelity orchestration dashboard for managing multiple Gemini CLI agents. This app transforms your desktop into a professional multi-agent command center with persistent memory, team collaboration, and a dynamic office ecosystem.
