@@ -483,7 +483,17 @@ const infoSectionStyle: React.CSSProperties = { flexGrow: 1 };
 const labelRowStyle: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '25px' };
 const fieldStyle: React.CSSProperties = { marginBottom: '20px' };
 const labelStyle: React.CSSProperties = { display: 'block', fontSize: '10px', letterSpacing: '1px', color: 'rgba(255,255,255,0.4)', marginBottom: '8px' };
-const selectStyle: React.CSSProperties = { width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', borderRadius: '8px', outline: 'none' };
+const selectStyle: React.CSSProperties = { 
+  width: 'auto', 
+  minWidth: '180px',
+  padding: '8px 12px', 
+  background: 'rgba(255,255,255,0.05)', 
+  border: '1px solid rgba(255,255,255,0.1)', 
+  color: '#fff', 
+  borderRadius: '8px', 
+  outline: 'none', 
+  fontSize: '13px' 
+};
 const statusCardStyle: React.CSSProperties = { padding: '15px', background: 'rgba(0,0,0,0.2)', borderRadius: '10px', fontSize: '13px' };
 
 const actionRowStyle: React.CSSProperties = { display: 'flex', gap: '10px', marginTop: '20px' };

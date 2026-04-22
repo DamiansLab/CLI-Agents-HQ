@@ -5,6 +5,7 @@ import Workstation from './components/Workstation'
 import BreakRoom from './components/BreakRoom'
 import AgentCard from './components/AgentCard'
 import ChatWindow from './components/ChatWindow'
+import Elevator from './components/Elevator'
 
 interface ChatMessage {
   sender: 'user' | 'agent';
@@ -73,6 +74,28 @@ const inputStyle: React.CSSProperties = {
   flexGrow: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid #3498db', color: '#fff', padding: '8px', borderRadius: '5px', outline: 'none'
 };
 
+const navBtnStyle: React.CSSProperties = {
+  padding: '8px 15px',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  color: 'rgba(255,255,255,0.7)',
+  borderRadius: '6px',
+  fontSize: '12px',
+  fontWeight: 'bold',
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  gap: '8px',
+  transition: 'all 0.2s'
+};
+
+const dividerStyle: React.CSSProperties = {
+  width: '1px',
+  height: '24px',
+  background: 'rgba(255,255,255,0.1)',
+  margin: '0 10px'
+};
+
 function App() {
   const [workstations, setWorkstations] = useState<(Agent | null)[]>(new Array(10).fill(null));
   const [breakRoomAgents, setBreakRoomAgents] = useState<Agent[]>([]);
@@ -84,9 +107,7 @@ function App() {
     view: 'profile' | 'terminal' | 'chat' | 'folder'
   } | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [showLogs, setShowLogs] = useState(false);
-  const [showBreakRoom, setShowBreakRoom] = useState(false);
-  const [showVault, setShowVault] = useState(false);
+  const [currentFloor, setCurrentFloor] = useState(1);
   const [showNoticeBoard, setShowNoticeBoard] = useState(false);
   const [showCollaboration, setShowCollaboration] = useState(false);
   const [collabAgents, setCollabAgents] = useState<string[]>([]);
@@ -96,6 +117,13 @@ function App() {
   const [groupChatHistory, setGroupChatHistory] = useState<ChatMessage[]>([]);
   const logEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
+
+  // Use refs to keep track of latest state for socket listeners
+  const workstationsRef = useRef(workstations);
+  const breakRoomAgentsRef = useRef(breakRoomAgents);
+
+  useEffect(() => { workstationsRef.current = workstations; }, [workstations]);
+  useEffect(() => { breakRoomAgentsRef.current = breakRoomAgents; }, [breakRoomAgents]);
 
   const updateAgent = (agentId: string, updates: Partial<Agent>) => {
     const updater = (a: Agent | null) => {
@@ -132,12 +160,14 @@ function App() {
         timestamp: new Date().toLocaleTimeString()
       };
 
+      const agent = [...workstationsRef.current, ...breakRoomAgentsRef.current].find(a => a?.id === agentId);
+      const agentName = agent?.name || `Agent ${agentId.substr(0,4)}`;
+
       // If it's a group response (simulated by looking for group context markers)
       if (text.includes("CONFERENCE MODE")) {
-        const agent = [...workstations, ...breakRoomAgents].find(a => a?.id === agentId);
         setGroupChatHistory(prev => [...prev, {
           ...newMessage,
-          text: `[${agent?.name || 'Agent'}]: ${text.split('Collaborate and build upon their ideas.')[1] || text}`
+          text: `[${agentName}]: ${text.split('Collaborate and build upon their ideas.')[1] || text}`
         }]);
       }
 
@@ -160,13 +190,16 @@ function App() {
         }
         return prevActive;
       });
-      addLog(`Agent response from ${agentId.substr(0,4)}: ${text.substr(0, 50)}...`, 'info');
+      addLog(`Response from ${agentName}: ${text.substr(0, 50)}...`, 'info');
     });
 
     socketRef.current.on('agent-status', ({ agentId, status }) => {
       updateAgent(agentId, { status });
+      const agent = [...workstationsRef.current, ...breakRoomAgentsRef.current].find(a => a?.id === agentId);
+      const agentName = agent?.name || `Agent ${agentId.substr(0,4)}`;
+
       if (status === 'thinking') {
-        addLog(`Agent ${agentId.substr(0,4)} started thinking...`, 'info');
+        addLog(`${agentName} started thinking...`, 'info');
       }
     });
 
@@ -176,7 +209,9 @@ function App() {
 
     socketRef.current.on('terminal-output', ({ agentId, data, type }) => {
       if (type === 'error') {
-        addLog(`[${agentId.substr(0,4)}] ERROR: ${data}`, 'error');
+        const agent = [...workstationsRef.current, ...breakRoomAgentsRef.current].find(a => a?.id === agentId);
+        const agentName = agent?.name || `Agent ${agentId.substr(0,4)}`;
+        addLog(`[${agentName}] ERROR: ${data}`, 'error');
       }
 
       setWorkstations(prev => prev.map(a => 
@@ -331,97 +366,134 @@ function App() {
 
   return (
     <div className={`App ${isNight ? 'night-mode' : ''}`}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
-        <h1 style={{ color: '#ecf0f1', margin: 0, textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>CLI AGENTS HQ</h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={() => setShowLogs(true)} 
-            style={{
-              padding: '12px 24px',
-              fontSize: '18px',
-              backgroundColor: '#607d8b',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 0 #455a64',
-            }}
-          >
-            📟 SYSTEM LOGS
+      {/* Sleek Command Bar */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '10px 20px',
+        background: 'rgba(0,0,0,0.4)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '12px',
+        marginBottom: '30px',
+        border: '1px solid rgba(255,255,255,0.05)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+          <h1 style={{ 
+            color: '#fff', 
+            margin: 0, 
+            fontSize: '20px', 
+            fontWeight: '900', 
+            letterSpacing: '-1px',
+            background: 'linear-gradient(to right, #fff, #666)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent'
+          }}>AGENTS_HQ</h1>
+          
+          <div style={dividerStyle} />
+
+          {/* Group 1: Project Tools */}
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <button onClick={() => setShowNoticeBoard(true)} style={navBtnStyle} title="Project Brief"><span style={{opacity: 0.7}}>📋</span> BRIEF</button>
+            <button onClick={() => setCurrentFloor(3)} style={{ ...navBtnStyle, background: currentFloor === 3 ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }} title="Knowledge Vault"><span style={{opacity: 0.7}}>🗄️</span> VAULT</button>
+          </div>
+        </div>
+
+        {/* Group 2: Team & Operations */}
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button onClick={() => setShowCollaboration(true)} style={{ ...navBtnStyle, background: 'rgba(46, 204, 113, 0.1)', color: '#2ecc71', border: '1px solid rgba(46, 204, 113, 0.2)' }}>
+            🤝 CONFERENCE
           </button>
-          <button 
-            onClick={() => setShowNoticeBoard(true)} 
-            style={{
-              padding: '12px 24px',
-              fontSize: '18px',
-              backgroundColor: '#3f51b5',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 0 #283593',
-            }}
-          >
-            📋 PROJECT BRIEF
+          
+          <button onClick={() => setCurrentFloor(2)} style={{ ...navBtnStyle, background: currentFloor === 2 ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }}>
+            ☕ LOUNGE ({breakRoomAgents.length})
           </button>
-          <button 
-            onClick={() => setShowVault(true)} 
-            style={{
-              padding: '12px 24px',
-              fontSize: '18px',
-              backgroundColor: '#9c27b0',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 0 #7b1fa2',
-            }}
-          >
-            🗄️ VAULT
+
+          <button onClick={hireAgent} style={{
+            padding: '8px 16px',
+            fontSize: '13px',
+            background: '#3498db',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 15px rgba(52, 152, 219, 0.3)'
+          }}>
+            ➕ HIRE AGENT
           </button>
+
+          <div style={dividerStyle} />
+
           <button 
-            onClick={() => setShowCollaboration(true)} 
-            style={{
-              padding: '12px 24px',
-              fontSize: '18px',
-              backgroundColor: '#2ecc71',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 0 #27ae60',
-            }}
+            onClick={() => setCurrentFloor(3)} 
+            style={{ ...navBtnStyle, width: '40px', padding: '8px 0', justifyContent: 'center', background: currentFloor === 3 ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }} 
+            title="System Logs"
           >
-            🤝 CONFERENCE ROOM
+            📟
           </button>
-          <button 
-            onClick={() => setShowBreakRoom(true)} 
-            style={{
-              padding: '12px 24px',
-              fontSize: '18px',
-              backgroundColor: '#795548',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              boxShadow: '0 4px 0 #5d4037',
-            }}
-          >
-            ☕ BREAK ROOM ({breakRoomAgents.length})
-          </button>
-          <button onClick={hireAgent} className="hire-btn">➕ HIRE NEW AGENT</button>
         </div>
       </div>
 
-      <div className="office-grid">
-        {workstations.map((agent, index) => (
-          <Workstation key={index} id={index} agent={agent} onClick={openAgent} />
-        ))}
+      <Elevator currentFloor={currentFloor} onFloorChange={setCurrentFloor} />
+
+      <div style={{ marginTop: '20px' }}>
+        {currentFloor === 1 && (
+          <div className="office-grid">
+            {workstations.map((agent, index) => (
+              <Workstation key={index} id={index} agent={agent} onClick={openAgent} />
+            ))}
+          </div>
+        )}
+
+        {currentFloor === 2 && (
+          <div className="office-grid lounge-floor" style={{ 
+            background: '#795548', 
+            borderColor: '#5d4037',
+            display: 'block',
+            perspective: '1000px',
+            minHeight: '600px'
+          }}>
+            <div style={{ transform: 'translateZ(20px)' }}>
+              <BreakRoom agents={breakRoomAgents} onClick={(a) => { returnFromBreak(a.id); }} />
+            </div>
+          </div>
+        )}
+
+        {currentFloor === 3 && (
+          <div className="office-grid archive-floor" style={{ 
+            background: '#2c3e50', 
+            borderColor: '#1a252f',
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '20px',
+            padding: '40px',
+            minHeight: '600px'
+          }}>
+            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '500px' }}>
+              <h3 style={{ color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>📟 System Logs</h3>
+              <div style={{ flexGrow: 1, overflowY: 'auto', background: '#000', padding: '15px', borderRadius: '8px', fontFamily: 'monospace', fontSize: '12px' }}>
+                {logs.map(log => (
+                  <div key={log.id} style={{ marginBottom: '5px', color: log.type === 'error' ? '#ff5252' : '#d4d4d4' }}>
+                    <span style={{ color: '#666' }}>[{log.timestamp}]</span> {log.message}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="glass-panel" style={{ padding: '20px', height: '500px', overflowY: 'auto' }}>
+              <h3 style={{ color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>🗄️ Knowledge Vault</h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+                {knowledgeVault.map(item => (
+                  <div key={item.id} style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px' }}>
+                    <h4 style={{ margin: '0 0 5px 0', color: '#e1bee7' }}>{item.title}</h4>
+                    <p style={{ margin: 0, fontSize: '11px', color: '#999' }}>{item.content.substr(0, 100)}...</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Group Collaboration Modal */}
@@ -537,67 +609,6 @@ function App() {
         </div>
       )}
 
-      {/* Break Room Modal */}
-      {showBreakRoom && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 4000
-        }} onClick={() => setShowBreakRoom(false)}>
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '15px',
-            width: '800px',
-            maxWidth: '90%',
-            maxHeight: '80vh',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-          }} onClick={e => e.stopPropagation()}>
-            <div style={{ 
-              padding: '15px 20px', 
-              backgroundColor: '#795548', 
-              color: 'white', 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center' 
-            }}>
-              <h3 style={{ margin: 0 }}>☕ Agent Break Room</h3>
-              <button 
-                onClick={() => setShowBreakRoom(false)}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
-                  color: 'white', 
-                  fontSize: '24px', 
-                  cursor: 'pointer',
-                  lineHeight: '1'
-                }}
-              >
-                ×
-              </button>
-            </div>
-            <div style={{ 
-              flexGrow: 1, 
-              overflowY: 'auto', 
-              padding: '30px', 
-              background: '#f5f5f5'
-            }}>
-              <BreakRoom agents={breakRoomAgents} onClick={(a) => { returnFromBreak(a.id); setShowBreakRoom(false); }} />
-            </div>
-
-          </div>
-        </div>
-      )}
-
       {/* Floating Chat Windows */}
       <div style={{
         position: 'fixed',
@@ -624,93 +635,6 @@ function App() {
           );
         })}
       </div>
-
-      {/* Global Logs Modal */}
-      {showLogs && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.8)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 4000
-        }} onClick={() => setShowLogs(false)}>
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '15px',
-            width: '800px',
-            maxWidth: '90%',
-            height: '600px',
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
-          }} onClick={e => e.stopPropagation()}>
-            <div style={{ 
-              padding: '15px 20px', 
-              backgroundColor: '#2c3e50', 
-              color: 'white', 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center' 
-            }}>
-              <h3 style={{ margin: 0 }}>📟 Global System Logs</h3>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  onClick={() => { setLogs([]); }}
-                  style={{ 
-                    padding: '5px 15px', 
-                    fontSize: '12px', 
-                    backgroundColor: 'rgba(255,255,255,0.1)', 
-                    color: '#fff',
-                    border: '1px solid rgba(255,255,255,0.3)',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Clear History
-                </button>
-                <button 
-                  onClick={() => setShowLogs(false)}
-                  style={{ 
-                    background: 'none', 
-                    border: 'none', 
-                    color: 'white', 
-                    fontSize: '24px', 
-                    cursor: 'pointer',
-                    lineHeight: '1'
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-            <div style={{ 
-              flexGrow: 1, 
-              overflowY: 'auto', 
-              backgroundColor: '#1e1e1e', 
-              padding: '20px', 
-              fontFamily: 'monospace',
-              fontSize: '13px'
-            }}>
-              {logs.map(log => (
-                <div key={log.id} style={{ marginBottom: '8px', color: log.type === 'error' ? '#ff5252' : log.type === 'success' ? '#4caf50' : '#d4d4d4' }}>
-                  <span style={{ color: '#888', marginRight: '10px' }}>[{log.timestamp}]</span>
-                  <span style={{ color: log.type === 'info' ? '#3498db' : 'inherit', fontWeight: log.type === 'error' ? 'bold' : 'normal' }}>
-                    {log.type.toUpperCase()}:
-                  </span> {log.message}
-                </div>
-              ))}
-              {logs.length === 0 && <div style={{ color: '#666', fontStyle: 'italic', textAlign: 'center', marginTop: '100px' }}>No global events recorded.</div>}
-              <div ref={logEndRef} />
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Notice Board Modal */}
       {showNoticeBoard && (
@@ -753,72 +677,6 @@ function App() {
         </div>
       )}
 
-      {/* Knowledge Vault Modal */}
-      {showVault && (
-        <div className="glass-modal" style={modalOverlayStyle} onClick={() => setShowVault(false)}>
-          <div style={{ ...modalContentStyle, width: '700px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ ...modalHeaderStyle, backgroundColor: '#9c27b0' }}>
-              <h3 style={{ margin: 0 }}>🗄️ Knowledge Vault</h3>
-              <button onClick={() => setShowVault(false)} style={closeBtnStyle}>×</button>
-            </div>
-            <div style={{ padding: '20px', flexGrow: 1, overflowY: 'auto' }}>
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
-                <button 
-                  onClick={() => {
-                    const title = prompt("Snippet Title:");
-                    const content = prompt("Content:");
-                    if (title && content) setKnowledgeVault([...knowledgeVault, { id: Date.now().toString(), title, content }]);
-                  }}
-                  style={{ ...primaryBtnStyle, backgroundColor: '#9c27b0', padding: '10px 20px' }}
-                >
-                  + Add Snippet
-                </button>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                {knowledgeVault.map(item => (
-                  <div key={item.id} style={{ 
-                    padding: '15px', 
-                    background: 'rgba(255,255,255,0.05)', 
-                    borderRadius: '10px', 
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    position: 'relative'
-                  }}>
-                    <h4 style={{ margin: '0 0 10px 0', color: '#e1bee7' }}>{item.title}</h4>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      color: 'rgba(255,255,255,0.7)', 
-                      whiteSpace: 'pre-wrap', 
-                      maxHeight: '100px', 
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>
-                      {item.content}
-                    </div>
-                    <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
-                      <button 
-                        onClick={() => {
-                          // In a real app, this would "feed" to a selected agent
-                          alert("Snippet ready to feed. Open an agent and click 'Vault' (Coming soon)");
-                        }}
-                        style={{ fontSize: '11px', padding: '4px 8px', cursor: 'pointer' }}
-                      >
-                        Copy to Clipboard
-                      </button>
-                      <button 
-                        onClick={() => setKnowledgeVault(knowledgeVault.filter(i => i.id !== item.id))}
-                        style={{ fontSize: '11px', padding: '4px 8px', cursor: 'pointer', color: 'red' }}
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              {knowledgeVault.length === 0 && <p style={{ textAlign: 'center', color: '#999', marginTop: '50px' }}>Your vault is empty.</p>}
-            </div>
-          </div>
-        </div>
-      )}
       {selectedAgent && (
         <AgentCard 
           agent={selectedAgent.agent}

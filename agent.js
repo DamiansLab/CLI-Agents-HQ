@@ -12,8 +12,6 @@ const processes = new Map(); // agentId -> { proc, cwd }
 
 const getSkillContent = (skillId) => {
   if (!skillId) return "";
-  // In bridge mode, skills could be local or remote. 
-  // For now, let's assume they are local to the agent.
   const filePath = path.join(__dirname, 'skills', `${skillId}.md`);
   try {
     if (fs.existsSync(filePath)) {
@@ -41,26 +39,33 @@ socket.on('worker-start-terminal', ({ agentId, directory }) => {
   socket.emit('worker-terminal-output', { agentId, data: `[Agent initialized in ${cwd}]\n` });
 });
 
-socket.on('worker-chat-message', ({ agentId, message, skillId }) => {
+socket.on('worker-chat-message', ({ agentId, message, skillId, isSlashCommand }) => {
   const agentData = processes.get(agentId);
   const cwd = agentData?.cwd || process.cwd();
   
   if (agentData && agentData.proc) {
     console.log(`[USER INPUT -> ${agentId}] ${message}`);
     agentData.proc.stdin.write(message + '\n');
-    socket.emit('worker-terminal-output', { agentId, data: `\n[Chat Input] > ${message}\n` });
+    socket.emit('worker-terminal-output', { agentId, data: `\n[Input] > ${message}\n` });
     return;
   }
 
   console.log(`[USER -> ${agentId}] ${message} (Skill: ${skillId || 'none'})`);
   socket.emit('worker-agent-status', { agentId, status: 'thinking' });
   
-  const skillContent = getSkillContent(skillId);
-  const fullPrompt = skillContent 
-    ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}`
-    : message;
+  let finalSpawnCmd = '';
+  if (isSlashCommand) {
+    console.log(`[RAW CLI -> ${agentId}] ${message}`);
+    finalSpawnCmd = `chcp 65001 > nul && gemini ${message}`;
+  } else {
+    const skillContent = getSkillContent(skillId);
+    const fullPrompt = skillContent 
+      ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}`
+      : message;
+    finalSpawnCmd = `chcp 65001 > nul && gemini "${fullPrompt.replace(/"/g, '\\"')}"`;
+  }
 
-  const proc = spawn('gemini', [`"${fullPrompt.replace(/"/g, '\\"')}"`], { 
+  const proc = spawn(finalSpawnCmd, [], { 
     cwd, 
     shell: true,
     env: { ...process.env, FORCE_COLOR: "1" }
@@ -114,13 +119,47 @@ socket.on('worker-chat-message', ({ agentId, message, skillId }) => {
 
 socket.on('worker-terminal-input', ({ agentId, input }) => {
   const agentData = processes.get(agentId);
+  
   if (agentData && agentData.proc) {
     console.log(`[USER INPUT -> ${agentId}] ${input}`);
     agentData.proc.stdin.write(input + '\n');
-    socket.emit('worker-terminal-output', { agentId, data: `\n> ${input}\n` });
-  } else {
-    socket.emit('worker-terminal-output', { agentId, data: `[No active process to receive input]\n`, type: 'error' });
+    return;
   }
+
+  console.log(`[RAW TERMINAL -> ${agentId}] ${input}`);
+  socket.emit('worker-agent-status', { agentId, status: 'thinking' });
+
+  const cwd = agentData?.cwd || process.cwd();
+  
+  let finalArgs = input;
+  if (input.toLowerCase().startsWith('/stats')) {
+    finalArgs = input.replace('/stats', '--stats');
+  } else if (input.toLowerCase().startsWith('/help')) {
+    finalArgs = input.replace('/help', '--help');
+  }
+
+  const isSlash = input.startsWith('/');
+  const finalSpawnCmd = isSlash 
+    ? `chcp 65001 > nul && gemini ${finalArgs}`
+    : `chcp 65001 > nul && gemini "${input.replace(/"/g, '\\"')}"`;
+
+  const proc = spawn(finalSpawnCmd, [], { cwd, shell: true, env: { ...process.env, FORCE_COLOR: "1" } });
+  
+  if (agentData) agentData.proc = proc;
+  else processes.set(agentId, { proc, cwd });
+
+  let output = '';
+  proc.stdout.on('data', (data) => {
+    const text = data.toString();
+    output += text;
+    socket.emit('worker-terminal-output', { agentId, data: text });
+  });
+
+  proc.on('close', (code) => {
+    const data = processes.get(agentId);
+    if (data) data.proc = null;
+    socket.emit('worker-agent-status', { agentId, status: 'idle' });
+  });
 });
 
 socket.on('worker-browse', ({ path: targetPath, requestId }) => {
@@ -155,7 +194,7 @@ socket.on('worker-read-file', ({ filePath, requestId }) => {
 socket.on('worker-reflect', ({ agentId, skillId, chatHistory, requestId }) => {
   const filePath = path.join(__dirname, 'skills', `${skillId}.md`);
   if (!fs.existsSync(filePath)) {
-    return socket.emit('worker-reflect-response', { requestId, error: "Skill file not found" });
+    return socket.emit('worker-reflect-response', { requestId, error: "Skill file not found", agentId });
   }
 
   const recentConversation = chatHistory.slice(-10).map(m => `${m.sender}: ${m.text}`).join('\n');
@@ -176,15 +215,15 @@ socket.on('worker-reflect', ({ agentId, skillId, chatHistory, requestId }) => {
         if (content.includes(lessonMarker)) {
           const newContent = content + `\n${reflection.trim()}\n`;
           fs.writeFileSync(filePath, newContent, 'utf8');
-          socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim() });
+          socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId });
         } else {
-          socket.emit('worker-reflect-response', { requestId, error: "Marker not found" });
+          socket.emit('worker-reflect-response', { requestId, error: "Marker not found", agentId });
         }
       } catch (err) {
-        socket.emit('worker-reflect-response', { requestId, error: err.message });
+        socket.emit('worker-reflect-response', { requestId, error: err.message, agentId });
       }
     } else {
-      socket.emit('worker-reflect-response', { requestId, error: "Reflection failed" });
+      socket.emit('worker-reflect-response', { requestId, error: "Reflection failed", agentId });
     }
   });
 });

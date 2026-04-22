@@ -234,11 +234,35 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('worker-reflect-response', ({ requestId, success, reflection, error }) => {
+  socket.on('worker-reflect-response', ({ requestId, success, reflection, error, agentId }) => {
     const res = pendingRequests.get(requestId);
     if (res) {
-      if (error) res.status(500).json({ error });
-      else res.json({ success, reflection });
+      if (error) {
+        res.status(500).json({ error });
+      } else {
+        // Award XP on successful worker reflection
+        if (agentId && state.workstations) {
+          state.workstations = state.workstations.map(a => {
+            if (a && a.id === agentId) {
+              const currentXP = (a.xp || 0) + 100;
+              const currentLevel = Math.floor(currentXP / 300) + 1;
+              return { ...a, xp: currentXP, level: currentLevel };
+            }
+            return a;
+          });
+          state.breakRoomAgents = state.breakRoomAgents.map(a => {
+            if (a && a.id === agentId) {
+              const currentXP = (a.xp || 0) + 100;
+              const currentLevel = Math.floor(currentXP / 300) + 1;
+              return { ...a, xp: currentXP, level: currentLevel };
+            }
+            return a;
+          });
+          saveState(state);
+          io.emit('agent-xp-update', { agentId, xp: 100 });
+        }
+        res.json({ success, reflection });
+      }
       pendingRequests.delete(requestId);
     }
   });
