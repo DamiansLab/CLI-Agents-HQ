@@ -1,56 +1,15 @@
 {
   "workstations": [
     {
-      "id": "ln6snujhp",
-      "name": "SEO Editor",
-      "avatar": "🦸",
+      "id": "jv5xtb6lv",
+      "name": "Bob #711",
+      "avatar": "🥷",
       "hasNotification": false,
-      "status": "thinking",
-      "chatHistory": [
-        {
-          "sender": "user",
-          "text": "check this app fif seos is good",
-          "timestamp": "2:08:15 μ.μ."
-        }
-      ],
+      "status": "idle",
+      "chatHistory": [],
       "xp": 0,
       "level": 1,
-      "skillId": "SEOExpert",
-      "terminalHistory": [
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
-        "I will begin by researching how the application currently manages its views in `App.tsx",
-        "` and examining the structure of the existing components.",
-        "\n",
-        "I will begin by creating the `Elevator.tsx",
-        "` component in `client/src/components/` and then I'll examine `client/src/App.css",
-        "` to ensure the new component's styling is consistent with the rest of the application.",
-        "\n",
-        "I'll create the `Elevator` component as a sleek control panel for",
-        " switching between floors, such as Engineering and the Staff Lounge. I'll also check `BreakRoom.tsx` to ensure",
-        " the transition between these views is seamless.",
-        "\n",
-        "I'll create the `Elevator` component as a fixed-position control panel for switching",
-        " between floors, such as Engineering and the Lounge. I'll then update `App.tsx` to manage the floor state",
-        " and render the appropriate components based on the selected floor. First, I'll write the `Elevator.tsx` file.",
-        "\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "I'll update `App.tsx` by importing the",
-        " `Elevator` component and adding a `currentFloor` state. I'll then adjust the rendering logic to switch between the ",
-        "`office-grid` on Floor 1 and a new `BreakRoom` view on Floor 2, ensuring the latter",
-        " matches the aesthetic of the office grid. Finally, I'll update the \"Lounge\" button in the header to",
-        " switch to Floor 2.",
-        "\n",
-        "I'm adding the `currentFloor` state and updating the rendering logic in `App.tsx`.",
-        "\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n"
-      ],
-      "workingDirectory": "C:\\Users\\nikif\\Documents\\DamiansLab"
+      "skillId": "Architect"
     },
     null,
     null,
@@ -68,6 +27,54 @@
       "id": "s5tj10jc8",
       "timestamp": "2:08:15 μ.μ.",
       "message": "SEO Editor started thinking...",
+      "type": "info"
+    },
+    {
+      "id": "2d9h30zeo",
+      "timestamp": "2:11:20 μ.μ.",
+      "message": "SEO Editor was terminated from the team.",
+      "type": "warning"
+    },
+    {
+      "id": "ds1dxwox3",
+      "timestamp": "2:11:22 μ.μ.",
+      "message": "Hired Bob #711 at Station 1.",
+      "type": "success"
+    },
+    {
+      "id": "cb3yf6z20",
+      "timestamp": "2:11:22 μ.μ.",
+      "message": "Hired Bob #711 at Station 1.",
+      "type": "success"
+    },
+    {
+      "id": "ozai16jdl",
+      "timestamp": "2:11:23 μ.μ.",
+      "message": "Hired Diana #531 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "bhakqpnbg",
+      "timestamp": "2:11:23 μ.μ.",
+      "message": "Hired Diana #531 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "14wjpjdgj",
+      "timestamp": "2:11:30 μ.μ.",
+      "message": "Diana #531 was terminated from the team.",
+      "type": "warning"
+    },
+    {
+      "id": "1cnrnv7h9",
+      "timestamp": "2:11:34 μ.μ.",
+      "message": "Bob #711 role changed to: Architect.",
+      "type": "info"
+    },
+    {
+      "id": "jjysba3fx",
+      "timestamp": "2:11:34 μ.μ.",
+      "message": "Bob #711 role changed to: Architect.",
       "type": "info"
     }
   ],
