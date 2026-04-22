@@ -114,7 +114,11 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const handleTerminalSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (terminalInput.trim() && socket) {
-      socket.emit('terminal-input', { agentId: agent.id, input: terminalInput });
+      socket.emit('terminal-input', { 
+        agentId: agent.id, 
+        input: terminalInput,
+        directory: agent.workingDirectory 
+      });
       setTerminalInput("");
     }
   };
@@ -130,7 +134,12 @@ const AgentCard: React.FC<AgentCardProps> = ({
           timestamp: new Date().toLocaleTimeString()
         }]
       });
-      socket.emit('chat-message', { agentId: agent.id, message: msg, skillId: agent.skillId });
+      socket.emit('chat-message', { 
+        agentId: agent.id, 
+        message: msg, 
+        skillId: agent.skillId,
+        directory: agent.workingDirectory 
+      });
       setChatInput("");
     }
   };

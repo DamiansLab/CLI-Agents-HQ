@@ -3,13 +3,18 @@
     {
       "id": "jv5xtb6lv",
       "name": "Bob #711",
-      "avatar": "🥷",
+      "avatar": "👨‍💼",
       "hasNotification": false,
       "status": "idle",
       "chatHistory": [],
       "xp": 0,
       "level": 1,
-      "skillId": "Architect"
+      "skillId": "",
+      "workingDirectory": "C:\\Users\\nikif\\Documents\\wsg",
+      "terminalHistory": [
+        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
+        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n"
+      ]
     },
     null,
     null,
@@ -76,6 +81,132 @@
       "timestamp": "2:11:34 μ.μ.",
       "message": "Bob #711 role changed to: Architect.",
       "type": "info"
+    },
+    {
+      "id": "qs857oa2x",
+      "timestamp": "2:14:55 μ.μ.",
+      "message": "Bob #711 role changed to: Generalist.",
+      "type": "info"
+    },
+    {
+      "id": "g80y2u2wm",
+      "timestamp": "2:14:55 μ.μ.",
+      "message": "Bob #711 role changed to: Generalist.",
+      "type": "info"
+    },
+    {
+      "id": "xj1k0mggf",
+      "timestamp": "2:15:06 μ.μ.",
+      "message": "Bob #711 is now working in: C:\\Users\\nikif\\Documents\\wsg",
+      "type": "info"
+    },
+    {
+      "id": "zzncdt8ar",
+      "timestamp": "2:15:06 μ.μ.",
+      "message": "Bob #711 is now working in: C:\\Users\\nikif\\Documents\\wsg",
+      "type": "info"
+    },
+    {
+      "id": "t0z64hoks",
+      "timestamp": "2:15:18 μ.μ.",
+      "message": "Bob #711 started thinking...",
+      "type": "info"
+    },
+    {
+      "id": "fu1sl1pt4",
+      "timestamp": "2:15:45 μ.μ.",
+      "message": "Response from Bob #711: I will examine the project files, starting with th...",
+      "type": "info"
+    },
+    {
+      "id": "3zuuduoth",
+      "timestamp": "2:16:31 μ.μ.",
+      "message": "Bob #711 started thinking...",
+      "type": "info"
+    },
+    {
+      "id": "6voiy0rf4",
+      "timestamp": "2:17:14 μ.μ.",
+      "message": "Response from Bob #711: I will list the folders in the root directory to g...",
+      "type": "info"
+    },
+    {
+      "id": "2ysdals68",
+      "timestamp": "2:20:02 μ.μ.",
+      "message": "Bob #711 started thinking...",
+      "type": "info"
+    },
+    {
+      "id": "b108v0864",
+      "timestamp": "2:20:27 μ.μ.",
+      "message": "Response from Bob #711: I can see the following files and directories in y...",
+      "type": "info"
+    },
+    {
+      "id": "vadixp5sl",
+      "timestamp": "2:21:15 μ.μ.",
+      "message": "Bob #711 started thinking...",
+      "type": "info"
+    },
+    {
+      "id": "oyt46dtsd",
+      "timestamp": "2:23:43 μ.μ.",
+      "message": "Agent response from jv5x: I will list the files in the current directory to ...",
+      "type": "info"
+    },
+    {
+      "id": "3g5cgq18q",
+      "timestamp": "2:24:36 μ.μ.",
+      "message": "Agent response from jv5x: I will list the files in the project root director...",
+      "type": "info"
+    },
+    {
+      "id": "0o67nry4a",
+      "timestamp": "2:25:34 μ.μ.",
+      "message": "Agent response from jv5x: I'm ready to work on the **Work Schedule (Παρακολο...",
+      "type": "info"
+    },
+    {
+      "id": "sljyctunx",
+      "timestamp": "2:26:35 μ.μ.",
+      "message": "Agent response from jv5x: I see that you have already implemented a page for...",
+      "type": "info"
+    },
+    {
+      "id": "gf9dpfk9k",
+      "timestamp": "2:48:36 μ.μ.",
+      "message": "Hired George #341 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "qqvoqugrw",
+      "timestamp": "2:48:36 μ.μ.",
+      "message": "Hired George #341 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "4zu2e5rnq",
+      "timestamp": "2:48:40 μ.μ.",
+      "message": "George #341 was terminated from the team.",
+      "type": "warning"
+    },
+    {
+      "id": "b1jpeov60",
+      "timestamp": "2:49:18 μ.μ.",
+      "message": "Hired Charlie #764 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "xiudzxowg",
+      "timestamp": "2:49:18 μ.μ.",
+      "message": "Hired Charlie #764 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "78t3xsprt",
+      "timestamp": "2:49:20 μ.μ.",
+      "message": "Charlie #764 was terminated from the team.",
+      "type": "warning"
     }
   ],
   "globalContext": "",

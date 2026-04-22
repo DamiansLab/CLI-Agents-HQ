@@ -13,6 +13,7 @@ interface Agent {
   id: string;
   name: string;
   avatar?: string;
+  workingDirectory?: string;
   status?: 'idle' | 'thinking' | 'offline';
   chatHistory?: ChatMessage[];
   skillId?: string;
@@ -76,6 +77,11 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
   }, [isDragging, dragStart]);
 
   useEffect(() => {
+    if (!socket) return;
+    socket.emit('start-terminal', { agentId: agent.id, directory: agent.workingDirectory });
+  }, [agent.id, agent.workingDirectory, socket]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -86,7 +92,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
       onUpdateAgent(agent.id, {
         chatHistory: [...messages, { sender: 'user', text: msgText, timestamp: new Date().toLocaleTimeString() }]
       });
-      socket.emit('chat-message', { agentId: agent.id, message: msgText, skillId: agent.skillId });
+      socket.emit('chat-message', { 
+        agentId: agent.id, 
+        message: msgText, 
+        skillId: agent.skillId,
+        directory: agent.workingDirectory 
+      });
       setInput("");
     }
   };
@@ -121,7 +132,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
         <div style={{ display: 'flex', gap: '2px' }}>
           {agent.status === 'thinking' && <button onClick={stopAgent} style={headerBtnStyle} title="Stop"><StopCircle size={14} color="#e74c3c"/></button>}
           <button onClick={handleReflect} disabled={isReflecting} style={{ ...headerBtnStyle, opacity: isReflecting ? 0.5 : 1 }} title="Reflect"><Sparkles size={14}/></button>
-          <button onClick={() => socket?.emit('restart-agent', { agentId: agent.id })} style={headerBtnStyle} title="Restart"><RotateCcw size={14}/></button>
+          <button onClick={() => socket?.emit('restart-agent', { agentId: agent.id, directory: agent.workingDirectory })} style={headerBtnStyle} title="Restart"><RotateCcw size={14}/></button>
           <button onClick={() => onUpdateAgent(agent.id, { chatHistory: [] })} style={headerBtnStyle} title="Clear"><Trash2 size={14}/></button>
           <button onClick={onClose} style={{ ...headerBtnStyle, color: '#fff' }}><X size={16}/></button>
         </div>

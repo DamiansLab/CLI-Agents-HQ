@@ -39,9 +39,16 @@ socket.on('worker-start-terminal', ({ agentId, directory }) => {
   socket.emit('worker-terminal-output', { agentId, data: `[Agent initialized in ${cwd}]\n` });
 });
 
-socket.on('worker-chat-message', ({ agentId, message, skillId, isSlashCommand }) => {
+socket.on('worker-chat-message', ({ agentId, message, skillId, isSlashCommand, directory }) => {
   const agentData = processes.get(agentId);
-  const cwd = agentData?.cwd || process.cwd();
+  const cwd = directory || agentData?.cwd || process.cwd();
+  
+  // Update stored cwd if directory was provided
+  if (directory && agentData) {
+    agentData.cwd = directory;
+  } else if (directory && !agentData) {
+    processes.set(agentId, { proc: null, cwd: directory });
+  }
   
   if (agentData && agentData.proc) {
     console.log(`[USER INPUT -> ${agentId}] ${message}`);
@@ -117,7 +124,7 @@ socket.on('worker-chat-message', ({ agentId, message, skillId, isSlashCommand })
   });
 });
 
-socket.on('worker-terminal-input', ({ agentId, input }) => {
+socket.on('worker-terminal-input', ({ agentId, input, directory }) => {
   const agentData = processes.get(agentId);
   
   if (agentData && agentData.proc) {
@@ -129,7 +136,14 @@ socket.on('worker-terminal-input', ({ agentId, input }) => {
   console.log(`[RAW TERMINAL -> ${agentId}] ${input}`);
   socket.emit('worker-agent-status', { agentId, status: 'thinking' });
 
-  const cwd = agentData?.cwd || process.cwd();
+  const cwd = directory || agentData?.cwd || process.cwd();
+
+  // Update stored cwd if directory was provided
+  if (directory && agentData) {
+    agentData.cwd = directory;
+  } else if (directory && !agentData) {
+    processes.set(agentId, { proc: null, cwd: directory });
+  }
   
   let finalArgs = input;
   if (input.toLowerCase().startsWith('/stats')) {
@@ -160,6 +174,29 @@ socket.on('worker-terminal-input', ({ agentId, input }) => {
     if (data) data.proc = null;
     socket.emit('worker-agent-status', { agentId, status: 'idle' });
   });
+});
+
+socket.on('worker-restart-agent', ({ agentId, directory }) => {
+  const data = processes.get(agentId);
+  if (data) {
+    data.proc?.kill();
+    data.proc = null;
+  }
+  const cwd = directory || data?.cwd || process.cwd();
+  console.log(`Restarting agent ${agentId} in ${cwd}`);
+  processes.set(agentId, { proc: null, cwd });
+  socket.emit('worker-terminal-output', { agentId, data: `[Agent restarted in ${cwd}]\n` });
+  socket.emit('worker-agent-status', { agentId, status: 'idle' });
+});
+
+socket.on('worker-stop-agent', ({ agentId }) => {
+  const data = processes.get(agentId);
+  if (data && data.proc) {
+    data.proc.kill();
+    data.proc = null;
+    socket.emit('worker-terminal-output', { agentId, data: `\n[PROCESS TERMINATED BY USER]\n`, type: 'error' });
+  }
+  socket.emit('worker-agent-status', { agentId, status: 'idle' });
 });
 
 socket.on('worker-browse', ({ path: targetPath, requestId }) => {

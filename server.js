@@ -129,25 +129,27 @@ app.post('/api/reflect', (req, res) => {
 // --- State Management ---
 let globalContext = "";
 let knowledgeVault = [];
+let state = { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [], globalContext: "", knowledgeVault: [] };
 
 const loadState = () => {
   try {
     if (fs.existsSync(dataFilePath)) {
       const data = fs.readFileSync(dataFilePath, 'utf8');
-      if (data.trim() === '') return { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [], globalContext: "", knowledgeVault: [] };
+      if (data.trim() === '') return state;
       const parsed = JSON.parse(data);
       globalContext = parsed.globalContext || "";
       knowledgeVault = parsed.knowledgeVault || [];
+      state = parsed;
       return parsed;
     }
   } catch (error) { console.error('Error loading state:', error); }
-  return { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [], globalContext: "", knowledgeVault: [] };
+  return state;
 };
 
-const saveState = (state) => {
+const saveState = (newState) => {
   try { 
-    const fullState = { ...state, globalContext, knowledgeVault };
-    fs.writeFileSync(dataFilePath, JSON.stringify(fullState, null, 2), 'utf8'); 
+    state = { ...newState, globalContext, knowledgeVault };
+    fs.writeFileSync(dataFilePath, JSON.stringify(state, null, 2), 'utf8'); 
   } 
   catch (error) { console.error('Error saving state:', error); }
 };
@@ -279,7 +281,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('chat-message', ({ agentId, message, skillId }) => {
+  socket.on('chat-message', ({ agentId, message, skillId, directory }) => {
     const worker = getFirstWorker();
     
     // Check if it's a slash command (Raw CLI)
@@ -290,11 +292,18 @@ io.on('connection', (socket) => {
       : message;
 
     if (worker) {
-      worker.emit('worker-chat-message', { agentId, message: finalMessage, skillId, isSlashCommand });
+      worker.emit('worker-chat-message', { agentId, message: finalMessage, skillId, isSlashCommand, directory });
     } else {
       // Local fallback
       const agentData = processes.get(agentId);
-      const cwd = agentData?.cwd || process.cwd();
+      const cwd = directory || agentData?.cwd || process.cwd();
+      
+      // Update stored cwd if directory was provided
+      if (directory && agentData) {
+        agentData.cwd = directory;
+      } else if (directory && !agentData) {
+        processes.set(agentId, { proc: null, isThinking: false, cwd: directory });
+      }
 
       if (agentData && agentData.proc) {
         agentData.proc.stdin.write(message + '\n');
@@ -333,9 +342,9 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('terminal-input', ({ agentId, input }) => {
+  socket.on('terminal-input', ({ agentId, input, directory }) => {
     const worker = getFirstWorker();
-    if (worker) worker.emit('worker-terminal-input', { agentId, input });
+    if (worker) worker.emit('worker-terminal-input', { agentId, input, directory });
     else {
       const agentData = processes.get(agentId);
       
@@ -354,7 +363,14 @@ io.on('connection', (socket) => {
       console.log(`[RAW CLI -> ${agentId}] Executing: ${input}`);
       socket.emit('agent-status', { agentId, status: 'thinking' });
       
-      const cwd = agentData?.cwd || process.cwd();
+      const cwd = directory || agentData?.cwd || process.cwd();
+      
+      // Update stored cwd if directory was provided
+      if (directory && agentData) {
+        agentData.cwd = directory;
+      } else if (directory && !agentData) {
+        processes.set(agentId, { proc: null, isThinking: false, cwd: directory });
+      }
       
       // If it starts with a slash, treat it as a raw CLI command/flag
       const finalCmd = input.startsWith('/') 

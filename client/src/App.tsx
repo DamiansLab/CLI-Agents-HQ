@@ -5,7 +5,8 @@ import Workstation from './components/Workstation'
 import BreakRoom from './components/BreakRoom'
 import AgentCard from './components/AgentCard'
 import ChatWindow from './components/ChatWindow'
-import Elevator from './components/Elevator'
+import KnowledgeVault from './components/KnowledgeVault'
+import SystemLogs from './components/SystemLogs'
 
 interface ChatMessage {
   sender: 'user' | 'agent';
@@ -70,10 +71,6 @@ const primaryBtnStyle: React.CSSProperties = {
   padding: '12px', border: 'none', color: '#fff', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer'
 };
 
-const inputStyle: React.CSSProperties = {
-  flexGrow: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid #3498db', color: '#fff', padding: '8px', borderRadius: '5px', outline: 'none'
-};
-
 const navBtnStyle: React.CSSProperties = {
   padding: '8px 15px',
   background: 'rgba(255,255,255,0.05)',
@@ -109,6 +106,9 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentFloor, setCurrentFloor] = useState(1);
   const [showNoticeBoard, setShowNoticeBoard] = useState(false);
+  const [showKnowledgeVault, setShowKnowledgeVault] = useState(false);
+  const [showStaffLounge, setShowStaffLounge] = useState(false);
+  const [showSystemLogs, setShowSystemLogs] = useState(false);
   const [showCollaboration, setShowCollaboration] = useState(false);
   const [collabAgents, setCollabAgents] = useState<string[]>([]);
   const [collabInput, setCollabInput] = useState("");
@@ -171,25 +171,29 @@ function App() {
         }]);
       }
 
-      updateAgent(agentId, { 
-        chatHistory: undefined, // Placeholder, we'll handle actual update below
-      });
-
-      // We need a way to append to history without knowing the full history here
-      // Let's modify updateAgent to support functional updates for fields
-      setWorkstations(prev => prev.map(a => 
-        (a && a.id === agentId) ? { ...a, chatHistory: [...(a.chatHistory || []), newMessage] } : a
-      ));
-      setBreakRoomAgents(prev => prev.map(a => 
-        a.id === agentId ? { ...a, chatHistory: [...(a.chatHistory || []), newMessage] } : a
-      ));
-
-      setActiveChats(prevActive => {
-        if (!prevActive.includes(agentId)) {
-          updateAgent(agentId, { hasNotification: true });
+      // Update the agent's chat history and notification status
+      const updater = (a: Agent | null) => {
+        if (a && a.id === agentId) {
+          const isCurrentlyActive = activeChats.includes(agentId);
+          return { 
+            ...a, 
+            chatHistory: [...(a.chatHistory || []), newMessage],
+            hasNotification: !isCurrentlyActive
+          };
         }
-        return prevActive;
+        return a;
+      };
+
+      setWorkstations(prev => prev.map(updater));
+      setBreakRoomAgents(prev => prev.map(a => updater(a) as Agent));
+      
+      setSelectedAgent(prev => {
+        if (prev && prev.agent.id === agentId) {
+          return { ...prev, agent: updater(prev.agent) as Agent };
+        }
+        return prev;
       });
+
       addLog(`Response from ${agentName}: ${text.substr(0, 50)}...`, 'info');
     });
 
@@ -214,12 +218,25 @@ function App() {
         addLog(`[${agentName}] ERROR: ${data}`, 'error');
       }
 
-      setWorkstations(prev => prev.map(a => 
-        (a && a.id === agentId) ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
-      ));
-      setBreakRoomAgents(prev => prev.map(a => 
-        a.id === agentId ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
-      ));
+      const updater = (a: Agent | null) => {
+        if (a && a.id === agentId) {
+          return { 
+            ...a, 
+            terminalHistory: [...(a.terminalHistory || []), data].slice(-500) 
+          };
+        }
+        return a;
+      };
+
+      setWorkstations(prev => prev.map(updater));
+      setBreakRoomAgents(prev => prev.map(a => updater(a) as Agent));
+      
+      setSelectedAgent(prev => {
+        if (prev && prev.agent.id === agentId) {
+          return { ...prev, agent: updater(prev.agent) as Agent };
+        }
+        return prev;
+      });
     });
 
     fetch('/api/state')
@@ -301,6 +318,7 @@ function App() {
       setWorkstations(prev => prev.map(slot => (slot && slot.id === agentId) ? null : slot));
       setBreakRoomAgents(prev => prev.filter(a => a.id !== agentId));
       setActiveChats(prev => prev.filter(id => id !== agentId));
+      setSelectedAgent(null); // Automatically close the card
       addLog(`${agent?.name} was terminated from the team.`, 'warning');
     }
   };
@@ -396,7 +414,7 @@ function App() {
           {/* Group 1: Project Tools */}
           <div style={{ display: 'flex', gap: '5px' }}>
             <button onClick={() => setShowNoticeBoard(true)} style={navBtnStyle} title="Project Brief"><span style={{opacity: 0.7}}>📋</span> BRIEF</button>
-            <button onClick={() => setCurrentFloor(3)} style={{ ...navBtnStyle, background: currentFloor === 3 ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }} title="Knowledge Vault"><span style={{opacity: 0.7}}>🗄️</span> VAULT</button>
+            <button onClick={() => setShowKnowledgeVault(!showKnowledgeVault)} style={{ ...navBtnStyle, background: showKnowledgeVault ? 'rgba(225, 190, 231, 0.2)' : navBtnStyle.background }} title="Knowledge Vault"><span style={{opacity: 0.7}}>🗄️</span> VAULT</button>
           </div>
         </div>
 
@@ -406,7 +424,7 @@ function App() {
             🤝 CONFERENCE
           </button>
           
-          <button onClick={() => setCurrentFloor(2)} style={{ ...navBtnStyle, background: currentFloor === 2 ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }}>
+          <button onClick={() => setShowStaffLounge(!showStaffLounge)} style={{ ...navBtnStyle, background: showStaffLounge ? 'rgba(121, 85, 72, 0.2)' : navBtnStyle.background }}>
             ☕ LOUNGE ({breakRoomAgents.length})
           </button>
 
@@ -427,16 +445,14 @@ function App() {
           <div style={dividerStyle} />
 
           <button 
-            onClick={() => setCurrentFloor(3)} 
-            style={{ ...navBtnStyle, width: '40px', padding: '8px 0', justifyContent: 'center', background: currentFloor === 3 ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }} 
+            onClick={() => setShowSystemLogs(!showSystemLogs)} 
+            style={{ ...navBtnStyle, width: '40px', padding: '8px 0', justifyContent: 'center', background: showSystemLogs ? 'rgba(255,255,255,0.15)' : navBtnStyle.background }} 
             title="System Logs"
           >
             📟
           </button>
         </div>
       </div>
-
-      <Elevator currentFloor={currentFloor} onFloorChange={setCurrentFloor} />
 
       <div style={{ marginTop: '20px' }}>
         {currentFloor === 1 && (
@@ -446,55 +462,34 @@ function App() {
             ))}
           </div>
         )}
-
-        {currentFloor === 2 && (
-          <div className="office-grid lounge-floor" style={{ 
-            background: '#795548', 
-            borderColor: '#5d4037',
-            display: 'block',
-            perspective: '1000px',
-            minHeight: '600px'
-          }}>
-            <div style={{ transform: 'translateZ(20px)' }}>
-              <BreakRoom agents={breakRoomAgents} onClick={(a) => { returnFromBreak(a.id); }} />
-            </div>
-          </div>
-        )}
-
-        {currentFloor === 3 && (
-          <div className="office-grid archive-floor" style={{ 
-            background: '#2c3e50', 
-            borderColor: '#1a252f',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '20px',
-            padding: '40px',
-            minHeight: '600px'
-          }}>
-            <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', height: '500px' }}>
-              <h3 style={{ color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>📟 System Logs</h3>
-              <div style={{ flexGrow: 1, overflowY: 'auto', background: '#000', padding: '15px', borderRadius: '8px', fontFamily: 'monospace', fontSize: '12px' }}>
-                {logs.map(log => (
-                  <div key={log.id} style={{ marginBottom: '5px', color: log.type === 'error' ? '#ff5252' : '#d4d4d4' }}>
-                    <span style={{ color: '#666' }}>[{log.timestamp}]</span> {log.message}
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="glass-panel" style={{ padding: '20px', height: '500px', overflowY: 'auto' }}>
-              <h3 style={{ color: '#fff', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px' }}>🗄️ Knowledge Vault</h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
-                {knowledgeVault.map(item => (
-                  <div key={item.id} style={{ padding: '10px', background: 'rgba(255,255,255,0.05)', borderRadius: '5px' }}>
-                    <h4 style={{ margin: '0 0 5px 0', color: '#e1bee7' }}>{item.title}</h4>
-                    <p style={{ margin: 0, fontSize: '11px', color: '#999' }}>{item.content.substr(0, 100)}...</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Floating Knowledge Vault */}
+      {showKnowledgeVault && (
+        <KnowledgeVault 
+          items={knowledgeVault} 
+          onClose={() => setShowKnowledgeVault(false)} 
+          onUpdateVault={setKnowledgeVault}
+        />
+      )}
+
+      {/* Staff Lounge Modal */}
+      {showStaffLounge && (
+        <BreakRoom 
+          agents={breakRoomAgents} 
+          onClose={() => setShowStaffLounge(false)} 
+          onReturnAgent={(a) => { returnFromBreak(a.id); setShowStaffLounge(false); }} 
+        />
+      )}
+
+      {/* System Logs Modal */}
+      {showSystemLogs && (
+        <SystemLogs 
+          logs={logs} 
+          onClose={() => setShowSystemLogs(false)} 
+          onClearLogs={() => setLogs([])}
+        />
+      )}
 
       {/* Group Collaboration Modal */}
       {showCollaboration && (
