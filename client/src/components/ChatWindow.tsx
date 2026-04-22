@@ -1,24 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Socket } from 'socket.io-client';
-
-interface Agent {
-  id: string;
-  name: string;
-  avatar?: string;
-  status?: 'idle' | 'thinking' | 'offline';
-}
+import { motion } from 'framer-motion';
+import { X, Send, Trash2, RotateCcw, StopCircle, Sparkles } from 'lucide-react';
 
 interface ChatMessage {
   sender: 'user' | 'agent';
   text: string;
   timestamp: string;
-}
-
-interface ChatWindowProps {
-  agent: Agent;
-  socket: Socket | null;
-  onClose: () => void;
-  onMinimize?: () => void;
 }
 
 interface Agent {
@@ -45,40 +33,22 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
   const messages = agent.chatHistory || [];
 
   const handleReflect = async () => {
-    if (!agent.skillId) {
-      alert("Assign a role first in the agent profile.");
-      return;
-    }
-    if (messages.length < 2) {
-      alert("Not enough conversation to learn from yet.");
-      return;
-    }
+    if (!agent.skillId) return alert("Assign a role first.");
+    if (messages.length < 2) return alert("Not enough conversation.");
 
     setIsReflecting(true);
     try {
       const res = await fetch('/api/reflect', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          agentId: agent.id,
-          skillId: agent.skillId,
-          chatHistory: messages
-        })
+        body: JSON.stringify({ agentId: agent.id, skillId: agent.skillId, chatHistory: messages })
       });
       const data = await res.json();
-      if (data.success) {
-        alert(`Learned successfully!\n\nNew Insights:\n${data.reflection}`);
-      } else {
-        alert(`Reflection failed: ${data.error}`);
-      }
-    } catch (err) {
-      alert("Error during reflection.");
-    } finally {
-      setIsReflecting(false);
-    }
+      if (data.success) alert(`Learned successfully!\n\n${data.reflection}`);
+    } catch (err) { alert("Error reflecting."); }
+    finally { setIsReflecting(false); }
   };
 
-  // Draggable State
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -91,14 +61,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
-        setPosition({
-          x: e.clientX - dragStart.x,
-          y: e.clientY - dragStart.y
-        });
+        setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
       }
     };
     const handleMouseUp = () => setIsDragging(false);
-
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
@@ -110,13 +76,6 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
   }, [isDragging, dragStart]);
 
   useEffect(() => {
-    if (!socket) return;
-    
-    // Ensure terminal is started so we can chat
-    socket.emit('start-terminal', { agentId: agent.id });
-  }, [agent.id, socket]);
-
-  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -124,211 +83,134 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
     e.preventDefault();
     if (input.trim() && socket) {
       const msgText = input;
-      const newMessage: ChatMessage = {
-        sender: 'user',
-        text: msgText,
-        timestamp: new Date().toLocaleTimeString()
-      };
-      
       onUpdateAgent(agent.id, {
-        chatHistory: [...messages, newMessage]
+        chatHistory: [...messages, { sender: 'user', text: msgText, timestamp: new Date().toLocaleTimeString() }]
       });
-
       socket.emit('chat-message', { agentId: agent.id, message: msgText, skillId: agent.skillId });
       setInput("");
     }
   };
 
-  const clearChat = () => {
-    if (window.confirm("Are you sure you want to clear the chat history for this agent?")) {
-      onUpdateAgent(agent.id, { chatHistory: [] });
-    }
-  };
-
   const stopAgent = () => {
-    if (socket) {
-      socket.emit('stop-agent', { agentId: agent.id });
-    }
-  };
-
-  const forceRestart = () => {
-    if (window.confirm("Force restart the Gemini process for this agent?")) {
-      if (socket) {
-        socket.emit('restart-agent', { agentId: agent.id });
-      }
-    }
+    if (socket) socket.emit('stop-agent', { agentId: agent.id });
   };
 
   return (
-    <div className="chat-window-card" style={{
-      width: '320px',
-      height: '450px',
-      backgroundColor: 'white',
-      borderRadius: '12px',
-      display: 'flex',
-      flexDirection: 'column',
-      boxShadow: isDragging ? '0 15px 35px rgba(0,0,0,0.4)' : '0 10px 25px rgba(0,0,0,0.3)',
-      overflow: 'hidden',
-      border: '1px solid #ddd',
-      position: 'relative',
-      transform: `translate(${position.x}px, ${position.y}px)`,
-      transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-      zIndex: isDragging ? 3000 : 2000
-    }}>
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      style={{
+        ...windowStyle,
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        zIndex: isDragging ? 3000 : 2000,
+        boxShadow: isDragging ? '0 30px 60px rgba(0,0,0,0.5)' : '0 15px 35px rgba(0,0,0,0.3)'
+      }}
+      className="glass-panel"
+    >
       {/* Header */}
-      <div 
-        onMouseDown={handleMouseDown}
-        style={{
-          padding: '12px',
-          backgroundColor: '#2c3e50',
-          color: 'white',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          cursor: isDragging ? 'grabbing' : 'grab',
-          userSelect: 'none'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', pointerEvents: 'none' }}>
-          <span style={{ fontSize: '20px' }}>{agent.avatar || "🤖"}</span>
+      <div onMouseDown={handleMouseDown} style={headerStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '24px' }}>{agent.avatar}</span>
           <div>
-            <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{agent.name}</div>
-            <div style={{ fontSize: '10px', color: agent.status === 'thinking' ? '#f1c40f' : '#2ecc71' }}>
-              ● {agent.status || 'online'}
+            <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#fff' }}>{agent.name}</div>
+            <div style={{ fontSize: '9px', color: agent.status === 'thinking' ? '#f1c40f' : '#2ecc71', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={statusDotStyle(agent.status)}/> {agent.status?.toUpperCase()}
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '5px' }}>
-          {agent.status === 'thinking' && (
-            <button 
-              onClick={stopAgent} 
-              title="Stop Agent" 
-              style={{
-                background: 'none',
-                border: 'none',
-                color: '#f44336',
-                cursor: 'pointer',
-                fontSize: '14px',
-                padding: '5px'
-              }}
-            >
-              🛑
-            </button>
-          )}
-          <button 
-            onClick={handleReflect} 
-            disabled={isReflecting || messages.length < 2}
-            title="End Session & Reflect"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: (isReflecting || messages.length < 2) ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.6)',
-              cursor: (isReflecting || messages.length < 2) ? 'default' : 'pointer',
-              fontSize: '14px',
-              padding: '5px'
-            }}
-          >
-            {isReflecting ? "⏳" : "✨"}
-          </button>
-          <button onClick={forceRestart} title="Force Restart Process" style={{
-            background: 'none',
-            border: 'none',
-            color: 'rgba(255,255,255,0.6)',
-            cursor: 'pointer',
-            fontSize: '14px',
-            padding: '5px'
-          }}>🔄</button>
-          <button onClick={clearChat} title="Clear Chat" style={{
-            background: 'none',
-            border: 'none',
-            color: 'rgba(255,255,255,0.6)',
-            cursor: 'pointer',
-            fontSize: '14px',
-            padding: '5px'
-          }}>🗑️</button>
-          <button onClick={onClose} style={{
-            background: 'none',
-            border: 'none',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: '18px',
-            padding: '5px'
-          }}>×</button>
+        <div style={{ display: 'flex', gap: '2px' }}>
+          {agent.status === 'thinking' && <button onClick={stopAgent} style={headerBtnStyle} title="Stop"><StopCircle size={14} color="#e74c3c"/></button>}
+          <button onClick={handleReflect} disabled={isReflecting} style={{ ...headerBtnStyle, opacity: isReflecting ? 0.5 : 1 }} title="Reflect"><Sparkles size={14}/></button>
+          <button onClick={() => socket?.emit('restart-agent', { agentId: agent.id })} style={headerBtnStyle} title="Restart"><RotateCcw size={14}/></button>
+          <button onClick={() => onUpdateAgent(agent.id, { chatHistory: [] })} style={headerBtnStyle} title="Clear"><Trash2 size={14}/></button>
+          <button onClick={onClose} style={{ ...headerBtnStyle, color: '#fff' }}><X size={16}/></button>
         </div>
       </div>
 
       {/* Messages */}
-      <div style={{
-        flexGrow: 1,
-        padding: '15px',
-        overflowY: 'auto',
-        backgroundColor: '#f9f9f9',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '10px'
-      }}>
+      <div style={messagesContainerStyle}>
         {messages.map((m, i) => (
           <div key={i} style={{
+            ...bubbleStyle,
             alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
-            backgroundColor: m.sender === 'user' ? '#3498db' : '#ecf0f1',
-            color: m.sender === 'user' ? 'white' : '#2c3e50',
-            padding: '8px 12px',
-            borderRadius: '12px',
-            maxWidth: '85%',
-            fontSize: '13px',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.1)'
+            background: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.08)',
+            color: '#fff',
+            borderRadius: m.sender === 'user' ? '15px 15px 2px 15px' : '15px 15px 15px 2px'
           }}>
-            <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
-            <div style={{ fontSize: '9px', opacity: 0.7, marginTop: '4px', textAlign: 'right' }}>
-              {m.timestamp}
-            </div>
+            <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap' }}>{m.text}</div>
+            <div style={{ fontSize: '9px', opacity: 0.5, marginTop: '5px', textAlign: 'right' }}>{m.timestamp}</div>
           </div>
         ))}
         {agent.status === 'thinking' && (
-          <div style={{ fontSize: '11px', color: '#888', fontStyle: 'italic' }}>
-            {agent.name} is typing...
+          <div style={{ display: 'flex', gap: '5px', padding: '10px' }}>
+            <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1 }} style={dotStyle}/>
+            <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} style={dotStyle}/>
+            <motion.div animate={{ opacity: [0.3, 1, 0.3] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} style={dotStyle}/>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSubmit} style={{
-        padding: '12px',
-        borderTop: '1px solid #eee',
-        display: 'flex',
-        gap: '8px'
-      }}>
+      <form onSubmit={handleSubmit} style={inputFormStyle}>
         <input 
-          autoFocus
-          placeholder="Send a message..."
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          style={{
-            flexGrow: 1,
-            padding: '8px 12px',
-            borderRadius: '20px',
-            border: '1px solid #ddd',
-            outline: 'none',
-            fontSize: '13px'
-          }}
+          autoFocus 
+          placeholder="Message agent..." 
+          value={input} 
+          onChange={e => setInput(e.target.value)} 
+          style={inputStyle}
         />
-        <button type="submit" style={{
-          backgroundColor: '#27ae60',
-          color: 'white',
-          border: 'none',
-          width: '32px',
-          height: '32px',
-          borderRadius: '50%',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontWeight: 'bold'
-        }}>→</button>
+        <button type="submit" style={sendBtnStyle}><Send size={16}/></button>
       </form>
-    </div>
+    </motion.div>
   );
+};
+
+// Styles
+const windowStyle: React.CSSProperties = {
+  width: '320px', height: '480px', display: 'flex', flexDirection: 'column',
+  borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)',
+  position: 'relative', transition: 'box-shadow 0.2s ease'
+};
+
+const headerStyle: React.CSSProperties = {
+  padding: '12px 15px', background: 'rgba(0,0,0,0.3)', display: 'flex',
+  alignItems: 'center', justifyContent: 'space-between', cursor: 'grab'
+};
+
+const headerBtnStyle: React.CSSProperties = {
+  background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+  cursor: 'pointer', padding: '6px', borderRadius: '6px', transition: 'all 0.2s'
+};
+
+const statusDotStyle = (status?: string): React.CSSProperties => ({
+  width: '6px', height: '6px', borderRadius: '50%',
+  background: status === 'thinking' ? '#f1c40f' : '#2ecc71',
+  boxShadow: `0 0 8px ${status === 'thinking' ? '#f1c40f' : '#2ecc71'}`
+});
+
+const messagesContainerStyle: React.CSSProperties = {
+  flexGrow: 1, padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px'
+};
+
+const bubbleStyle: React.CSSProperties = {
+  padding: '10px 14px', maxWidth: '85%', boxShadow: '0 2px 10px rgba(0,0,0,0.1)', position: 'relative'
+};
+
+const dotStyle: React.CSSProperties = { width: '6px', height: '6px', background: '#3498db', borderRadius: '50%' };
+
+const inputFormStyle: React.CSSProperties = {
+  padding: '12px', background: 'rgba(0,0,0,0.2)', display: 'flex', gap: '10px', borderTop: '1px solid rgba(255,255,255,0.05)'
+};
+
+const inputStyle: React.CSSProperties = {
+  flexGrow: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+  color: '#fff', padding: '8px 15px', borderRadius: '20px', outline: 'none', fontSize: '13px'
+};
+
+const sendBtnStyle: React.CSSProperties = {
+  width: '34px', height: '34px', borderRadius: '50%', background: '#3498db',
+  border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
 };
 
 export default ChatWindow;

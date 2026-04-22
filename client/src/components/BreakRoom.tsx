@@ -8,7 +8,7 @@ interface Agent {
 
 interface BreakRoomProps {
   agents: Agent[];
-  onClick: (agent: Agent) => void;
+  onClick: (agent: Agent, view?: 'profile' | 'terminal' | 'chat' | 'folder') => void;
 }
 
 const BreakRoom: React.FC<BreakRoomProps> = ({ agents, onClick }) => {
@@ -36,7 +36,7 @@ const BreakRoom: React.FC<BreakRoomProps> = ({ agents, onClick }) => {
           {agents.map(agent => (
             <div 
               key={agent.id} 
-              onClick={() => onClick(agent)}
+              onClick={() => onClick(agent, 'chat')}
               style={{
                 padding: '12px 20px',
                 backgroundColor: '#fdfdfd',

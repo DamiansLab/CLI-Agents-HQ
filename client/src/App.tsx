@@ -22,6 +22,14 @@ interface Agent {
   chatHistory?: ChatMessage[];
   terminalHistory?: string[];
   skillId?: string;
+  xp?: number;
+  level?: number;
+}
+
+interface VaultItem {
+  id: string;
+  title: string;
+  content: string;
 }
 
 interface LogEntry {
@@ -39,6 +47,32 @@ const AGENT_NAMES = [
 
 const AVATARS = ["👨‍💼", "👩‍💼", "🧑‍💻", "👩‍💻", "🕵️", "🦸", "🥷", "🤖"];
 
+const modalOverlayStyle: React.CSSProperties = {
+  position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+  backgroundColor: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 4000
+};
+
+const modalContentStyle: React.CSSProperties = {
+  backgroundColor: '#fff', borderRadius: '15px', width: '600px', maxWidth: '90%', height: '500px',
+  display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+};
+
+const modalHeaderStyle: React.CSSProperties = {
+  padding: '15px 20px', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+};
+
+const closeBtnStyle: React.CSSProperties = {
+  background: 'none', border: 'none', color: 'white', fontSize: '24px', cursor: 'pointer', lineHeight: '1'
+};
+
+const primaryBtnStyle: React.CSSProperties = {
+  padding: '12px', border: 'none', color: '#fff', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer'
+};
+
+const inputStyle: React.CSSProperties = {
+  flexGrow: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid #3498db', color: '#fff', padding: '8px', borderRadius: '5px', outline: 'none'
+};
+
 function App() {
   const [workstations, setWorkstations] = useState<(Agent | null)[]>(new Array(10).fill(null));
   const [breakRoomAgents, setBreakRoomAgents] = useState<Agent[]>([]);
@@ -52,6 +86,14 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
   const [showBreakRoom, setShowBreakRoom] = useState(false);
+  const [showVault, setShowVault] = useState(false);
+  const [showNoticeBoard, setShowNoticeBoard] = useState(false);
+  const [showCollaboration, setShowCollaboration] = useState(false);
+  const [collabAgents, setCollabAgents] = useState<string[]>([]);
+  const [collabInput, setCollabInput] = useState("");
+  const [globalContext, setGlobalContext] = useState("");
+  const [knowledgeVault, setKnowledgeVault] = useState<VaultItem[]>([]);
+  const [groupChatHistory, setGroupChatHistory] = useState<ChatMessage[]>([]);
   const logEndRef = useRef<HTMLDivElement>(null);
   const socketRef = useRef<Socket | null>(null);
 
@@ -79,6 +121,15 @@ function App() {
         timestamp: new Date().toLocaleTimeString()
       };
 
+      // If it's a group response (simulated by looking for group context markers)
+      if (text.includes("CONFERENCE MODE")) {
+        const agent = [...workstations, ...breakRoomAgents].find(a => a?.id === agentId);
+        setGroupChatHistory(prev => [...prev, {
+          ...newMessage,
+          text: `[${agent?.name || 'Agent'}]: ${text.split('Collaborate and build upon their ideas.')[1] || text}`
+        }]);
+      }
+
       updateAgent(agentId, { 
         chatHistory: undefined, // Placeholder, we'll handle actual update below
       });
@@ -86,7 +137,7 @@ function App() {
       // We need a way to append to history without knowing the full history here
       // Let's modify updateAgent to support functional updates for fields
       setWorkstations(prev => prev.map(a => 
-        a?.id === agentId ? { ...a, chatHistory: [...(a.chatHistory || []), newMessage] } : a
+        (a && a.id === agentId) ? { ...a, chatHistory: [...(a.chatHistory || []), newMessage] } : a
       ));
       setBreakRoomAgents(prev => prev.map(a => 
         a.id === agentId ? { ...a, chatHistory: [...(a.chatHistory || []), newMessage] } : a
@@ -103,6 +154,13 @@ function App() {
 
     socketRef.current.on('agent-status', ({ agentId, status }) => {
       updateAgent(agentId, { status });
+      if (status === 'thinking') {
+        addLog(`Agent ${agentId.substr(0,4)} started thinking...`, 'info');
+      }
+    });
+
+    socketRef.current.on('system-message', ({ message, type }) => {
+      addLog(message, type || 'info');
     });
 
     socketRef.current.on('terminal-output', ({ agentId, data, type }) => {
@@ -111,7 +169,7 @@ function App() {
       }
 
       setWorkstations(prev => prev.map(a => 
-        a?.id === agentId ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
+        (a && a.id === agentId) ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
       ));
       setBreakRoomAgents(prev => prev.map(a => 
         a.id === agentId ? { ...a, terminalHistory: [...(a.terminalHistory || []), data].slice(-500) } : a
@@ -124,6 +182,8 @@ function App() {
         if (data.workstations) setWorkstations(data.workstations);
         if (data.breakRoomAgents) setBreakRoomAgents(data.breakRoomAgents);
         if (data.logs) setLogs(data.logs);
+        if (data.globalContext) setGlobalContext(data.globalContext);
+        if (data.knowledgeVault) setKnowledgeVault(data.knowledgeVault);
         setIsLoaded(true);
       })
       .catch(error => {
@@ -143,10 +203,10 @@ function App() {
       fetch('/api/state', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ workstations, breakRoomAgents, logs })
+        body: JSON.stringify({ workstations, breakRoomAgents, logs, globalContext, knowledgeVault })
       });
     }
-  }, [workstations, breakRoomAgents, logs, isLoaded]);
+  }, [workstations, breakRoomAgents, logs, globalContext, knowledgeVault, isLoaded]);
 
   useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -160,10 +220,6 @@ function App() {
       type
     };
     setLogs(prev => [...prev.slice(-49), newLog]);
-  };
-
-  const clearLogs = () => {
-    setLogs([]);
   };
 
   const hireAgent = () => {
@@ -265,10 +321,12 @@ function App() {
     setActiveChats(prev => prev.filter(id => id !== agentId));
   };
 
+  const isNight = new Date().getHours() >= 19 || new Date().getHours() <= 7;
+
   if (!isLoaded) return <div style={{ color: 'white', textAlign: 'center', marginTop: '50px' }}>INITIALIZING HQ...</div>;
 
   return (
-    <div className="App">
+    <div className={`App ${isNight ? 'night-mode' : ''}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' }}>
         <h1 style={{ color: '#ecf0f1', margin: 0, textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}>CLI AGENTS HQ</h1>
         <div style={{ display: 'flex', gap: '10px' }}>
@@ -287,6 +345,54 @@ function App() {
             }}
           >
             📟 SYSTEM LOGS
+          </button>
+          <button 
+            onClick={() => setShowNoticeBoard(true)} 
+            style={{
+              padding: '12px 24px',
+              fontSize: '18px',
+              backgroundColor: '#3f51b5',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 0 #283593',
+            }}
+          >
+            📋 PROJECT BRIEF
+          </button>
+          <button 
+            onClick={() => setShowVault(true)} 
+            style={{
+              padding: '12px 24px',
+              fontSize: '18px',
+              backgroundColor: '#9c27b0',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 0 #7b1fa2',
+            }}
+          >
+            🗄️ VAULT
+          </button>
+          <button 
+            onClick={() => setShowCollaboration(true)} 
+            style={{
+              padding: '12px 24px',
+              fontSize: '18px',
+              backgroundColor: '#2ecc71',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              boxShadow: '0 4px 0 #27ae60',
+            }}
+          >
+            🤝 CONFERENCE ROOM
           </button>
           <button 
             onClick={() => setShowBreakRoom(true)} 
@@ -313,6 +419,119 @@ function App() {
           <Workstation key={index} id={index} agent={agent} onClick={openAgent} />
         ))}
       </div>
+
+      {/* Group Collaboration Modal */}
+      {showCollaboration && (
+        <div className="glass-modal" style={modalOverlayStyle} onClick={() => setShowCollaboration(false)}>
+          <div style={{ ...modalContentStyle, width: '800px', height: '600px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ ...modalHeaderStyle, backgroundColor: '#2ecc71' }}>
+              <h3 style={{ margin: 0 }}>🤝 Team Collaboration</h3>
+              <button onClick={() => setShowCollaboration(false)} style={closeBtnStyle}>×</button>
+            </div>
+            <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '11px', color: '#666', marginBottom: '10px' }}>INVITE SPECIALISTS:</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {workstations.filter(a => a !== null).map(a => (
+                    <div 
+                      key={a!.id}
+                      onClick={() => {
+                        if (collabAgents.includes(a!.id)) setCollabAgents(collabAgents.filter(id => id !== a!.id));
+                        else setCollabAgents([...collabAgents, a!.id]);
+                      }}
+                      style={{
+                        padding: '8px 15px',
+                        borderRadius: '20px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        background: collabAgents.includes(a!.id) ? '#2ecc71' : '#f0f0f0',
+                        color: collabAgents.includes(a!.id) ? '#fff' : '#666',
+                        border: '1px solid #ddd'
+                      }}
+                    >
+                      {a!.avatar} {a!.name}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ 
+                flexGrow: 1, 
+                background: '#0a0b14', 
+                borderRadius: '12px', 
+                padding: '20px', 
+                overflowY: 'auto',
+                border: '1px solid rgba(255,255,255,0.05)',
+                marginBottom: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px'
+              }}>
+                {groupChatHistory.map((m, i) => (
+                  <div key={i} style={{
+                    padding: '12px 16px',
+                    borderRadius: m.sender === 'user' ? '15px 15px 2px 15px' : '15px 15px 15px 2px',
+                    backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.05)',
+                    alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
+                    maxWidth: '80%',
+                    color: '#fff',
+                    fontSize: '13px',
+                    boxShadow: '0 2px 10px rgba(0,0,0,0.2)'
+                  }}>
+                    <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
+                    <div style={{ fontSize: '9px', opacity: 0.5, textAlign: 'right', marginTop: '5px' }}>{m.timestamp}</div>
+                  </div>
+                ))}
+                {groupChatHistory.length === 0 && (
+                  <p style={{ color: '#444', textAlign: 'center', fontSize: '14px', marginTop: '100px' }}>
+                    Select agents and type a message to start the collaborative discussion.
+                  </p>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <input 
+                  value={collabInput}
+                  onChange={e => setCollabInput(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      if (collabAgents.length === 0) return alert("Invite at least one agent!");
+                      setGroupChatHistory(prev => [...prev, { sender: 'user', text: collabInput, timestamp: new Date().toLocaleTimeString() }]);
+                      socketRef.current?.emit('group-chat-message', { agentIds: collabAgents, message: collabInput, projectBrief: globalContext });
+                      setCollabInput("");
+                    }
+                  }}
+                  placeholder="Ask the team a question..."
+                  style={{ 
+                    flexGrow: 1, 
+                    padding: '12px 20px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '30px',
+                    color: '#fff',
+                    outline: 'none'
+                  }}
+                />
+                <button 
+                  onClick={() => {
+                    if (collabAgents.length === 0) return alert("Invite at least one agent!");
+                    setGroupChatHistory(prev => [...prev, { sender: 'user', text: collabInput, timestamp: new Date().toLocaleTimeString() }]);
+                    socketRef.current?.emit('group-chat-message', {
+                      agentIds: collabAgents,
+                      message: collabInput,
+                      projectBrief: globalContext
+                    });
+                    setCollabInput("");
+                  }}
+                  style={{ ...primaryBtnStyle, backgroundColor: '#2ecc71', padding: '10px 25px', borderRadius: '30px' }}
+                >
+                  Send to Team
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Break Room Modal */}
       {showBreakRoom && (
@@ -368,8 +587,9 @@ function App() {
               padding: '30px', 
               background: '#f5f5f5'
             }}>
-              <BreakRoom agents={breakRoomAgents} onClick={(a) => { openAgent(a, 'profile'); setShowBreakRoom(false); }} />
+              <BreakRoom agents={breakRoomAgents} onClick={(a) => { returnFromBreak(a.id); setShowBreakRoom(false); }} />
             </div>
+
           </div>
         </div>
       )}
@@ -488,12 +708,120 @@ function App() {
         </div>
       )}
 
+      {/* Notice Board Modal */}
+      {showNoticeBoard && (
+        <div className="glass-modal" style={modalOverlayStyle} onClick={() => setShowNoticeBoard(false)}>
+          <div style={modalContentStyle} onClick={e => e.stopPropagation()}>
+            <div style={{ ...modalHeaderStyle, backgroundColor: '#3f51b5' }}>
+              <h3 style={{ margin: 0 }}>📋 Global Project Brief</h3>
+              <button onClick={() => setShowNoticeBoard(false)} style={closeBtnStyle}>×</button>
+            </div>
+            <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+              <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '15px' }}>
+                This brief is automatically sent to every agent you chat with. Use it to define project rules, tech stack, and goals.
+              </p>
+              <textarea 
+                value={globalContext}
+                onChange={(e) => setGlobalContext(e.target.value)}
+                placeholder="e.g. We are building a React application using Tailwind CSS. All backend logic should be in Python/FastAPI. The database is PostgreSQL..."
+                style={{
+                  flexGrow: 1,
+                  padding: '15px',
+                  borderRadius: '8px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'rgba(0,0,0,0.2)',
+                  color: '#fff',
+                  fontSize: '15px',
+                  lineHeight: '1.5',
+                  resize: 'none',
+                  outline: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
+              <button 
+                onClick={() => setShowNoticeBoard(false)}
+                style={{ ...primaryBtnStyle, marginTop: '15px', backgroundColor: '#3f51b5' }}
+              >
+                Save Brief
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Knowledge Vault Modal */}
+      {showVault && (
+        <div className="glass-modal" style={modalOverlayStyle} onClick={() => setShowVault(false)}>
+          <div style={{ ...modalContentStyle, width: '700px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ ...modalHeaderStyle, backgroundColor: '#9c27b0' }}>
+              <h3 style={{ margin: 0 }}>🗄️ Knowledge Vault</h3>
+              <button onClick={() => setShowVault(false)} style={closeBtnStyle}>×</button>
+            </div>
+            <div style={{ padding: '20px', flexGrow: 1, overflowY: 'auto' }}>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
+                <button 
+                  onClick={() => {
+                    const title = prompt("Snippet Title:");
+                    const content = prompt("Content:");
+                    if (title && content) setKnowledgeVault([...knowledgeVault, { id: Date.now().toString(), title, content }]);
+                  }}
+                  style={{ ...primaryBtnStyle, backgroundColor: '#9c27b0', padding: '10px 20px' }}
+                >
+                  + Add Snippet
+                </button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                {knowledgeVault.map(item => (
+                  <div key={item.id} style={{ 
+                    padding: '15px', 
+                    background: 'rgba(255,255,255,0.05)', 
+                    borderRadius: '10px', 
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    position: 'relative'
+                  }}>
+                    <h4 style={{ margin: '0 0 10px 0', color: '#e1bee7' }}>{item.title}</h4>
+                    <div style={{ 
+                      fontSize: '12px', 
+                      color: 'rgba(255,255,255,0.7)', 
+                      whiteSpace: 'pre-wrap', 
+                      maxHeight: '100px', 
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {item.content}
+                    </div>
+                    <div style={{ marginTop: '10px', display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={() => {
+                          // In a real app, this would "feed" to a selected agent
+                          alert("Snippet ready to feed. Open an agent and click 'Vault' (Coming soon)");
+                        }}
+                        style={{ fontSize: '11px', padding: '4px 8px', cursor: 'pointer' }}
+                      >
+                        Copy to Clipboard
+                      </button>
+                      <button 
+                        onClick={() => setKnowledgeVault(knowledgeVault.filter(i => i.id !== item.id))}
+                        style={{ fontSize: '11px', padding: '4px 8px', cursor: 'pointer', color: 'red' }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {knowledgeVault.length === 0 && <p style={{ textAlign: 'center', color: '#999', marginTop: '50px' }}>Your vault is empty.</p>}
+            </div>
+          </div>
+        </div>
+      )}
       {selectedAgent && (
         <AgentCard 
           agent={selectedAgent.agent}
           location={selectedAgent.location}
           initialView={selectedAgent.view}
           socket={socketRef.current}
+          knowledgeVault={knowledgeVault}
           onClose={() => setSelectedAgent(null)}
           onFire={handleFire}
           onSendToBreak={sendToBreak}

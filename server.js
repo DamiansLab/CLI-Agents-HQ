@@ -91,6 +91,31 @@ app.post('/api/reflect', (req, res) => {
           let content = fs.readFileSync(filePath, 'utf8');
           if (content.includes("## Lessons Learned")) {
             fs.writeFileSync(filePath, content + `\n${reflection.trim()}\n`, 'utf8');
+            
+            // Award XP to the agent
+            if (state.workstations) {
+              state.workstations = state.workstations.map(a => {
+                if (a && a.id === agentId) {
+                  const currentXP = (a.xp || 0) + 100;
+                  const currentLevel = Math.floor(currentXP / 300) + 1;
+                  return { ...a, xp: currentXP, level: currentLevel };
+                }
+                return a;
+              });
+            }
+            if (state.breakRoomAgents) {
+              state.breakRoomAgents = state.breakRoomAgents.map(a => {
+                if (a && a.id === agentId) {
+                  const currentXP = (a.xp || 0) + 100;
+                  const currentLevel = Math.floor(currentXP / 300) + 1;
+                  return { ...a, xp: currentXP, level: currentLevel };
+                }
+                return a;
+              });
+            }
+            saveState(state);
+            io.emit('agent-xp-update', { agentId, xp: 100 }); // Notify client
+
             res.json({ success: true, reflection: reflection.trim() });
           } else {
             res.json({ success: false, error: "Marker not found" });
@@ -102,19 +127,28 @@ app.post('/api/reflect', (req, res) => {
 });
 
 // --- State Management ---
+let globalContext = "";
+let knowledgeVault = [];
+
 const loadState = () => {
   try {
     if (fs.existsSync(dataFilePath)) {
       const data = fs.readFileSync(dataFilePath, 'utf8');
-      if (data.trim() === '') return { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [] };
-      return JSON.parse(data);
+      if (data.trim() === '') return { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [], globalContext: "", knowledgeVault: [] };
+      const parsed = JSON.parse(data);
+      globalContext = parsed.globalContext || "";
+      knowledgeVault = parsed.knowledgeVault || [];
+      return parsed;
     }
   } catch (error) { console.error('Error loading state:', error); }
-  return { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [] };
+  return { workstations: new Array(10).fill(null), breakRoomAgents: [], logs: [], globalContext: "", knowledgeVault: [] };
 };
 
 const saveState = (state) => {
-  try { fs.writeFileSync(dataFilePath, JSON.stringify(state, null, 2), 'utf8'); } 
+  try { 
+    const fullState = { ...state, globalContext, knowledgeVault };
+    fs.writeFileSync(dataFilePath, JSON.stringify(fullState, null, 2), 'utf8'); 
+  } 
   catch (error) { console.error('Error saving state:', error); }
 };
 
@@ -223,30 +257,52 @@ io.on('connection', (socket) => {
 
   socket.on('chat-message', ({ agentId, message, skillId }) => {
     const worker = getFirstWorker();
+    
+    // Check if it's a slash command (Raw CLI)
+    const isSlashCommand = message.trim().startsWith('/');
+    
+    const finalMessage = (globalContext && !isSlashCommand)
+      ? `Global Project Context:\n${globalContext}\n\nCurrent Request:\n${message}`
+      : message;
+
     if (worker) {
-      worker.emit('worker-chat-message', { agentId, message, skillId });
+      worker.emit('worker-chat-message', { agentId, message: finalMessage, skillId, isSlashCommand });
     } else {
-      // Local fallback (legacy logic)
+      // Local fallback
       const agentData = processes.get(agentId);
       const cwd = agentData?.cwd || process.cwd();
+
       if (agentData && agentData.proc) {
         agentData.proc.stdin.write(message + '\n');
-        socket.emit('terminal-output', { agentId, data: `\n[Chat Input] > ${message}\n` });
+        socket.emit('terminal-output', { agentId, data: `\n[Input] > ${message}\n` });
         return;
       }
+
       socket.emit('agent-status', { agentId, status: 'thinking' });
-      const skillContent = getSkillContent(skillId);
-      const fullPrompt = skillContent ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}` : message;
-      const proc = spawn('gemini', [`"${fullPrompt.replace(/"/g, '\\"')}"`], { cwd, shell: true, env: { ...process.env, FORCE_COLOR: "1" } });
+
+      let finalSpawnCmd = '';
+      if (isSlashCommand) {
+        console.log(`[RAW CLI FROM CHAT -> ${agentId}] ${message}`);
+        finalSpawnCmd = `chcp 65001 > nul && gemini ${message}`;
+      } else {
+        const skillContent = getSkillContent(skillId);
+        const fullPrompt = skillContent ? `System Instructions:\n${skillContent}\n\nUser Message:\n${finalMessage}` : finalMessage;
+        finalSpawnCmd = `chcp 65001 > nul && gemini "${fullPrompt.replace(/"/g, '\\"')}"`;
+      }
+
+      const proc = spawn(finalSpawnCmd, [], { cwd, shell: true, env: { ...process.env, FORCE_COLOR: "1" } });
       if (agentData) agentData.proc = proc;
+      else processes.set(agentId, { proc, isThinking: true, cwd });
+
       let output = '';
       proc.stdout.on('data', (data) => {
         const text = data.toString();
         output += text;
         socket.emit('terminal-output', { agentId, data: text });
       });
+
       proc.on('close', (code) => {
-        if (agentData) agentData.proc = null;
+        if (processes.get(agentId)) processes.get(agentId).proc = null;
         if (output.trim()) socket.emit('agent-response', { agentId, text: output });
         socket.emit('agent-status', { agentId, status: 'idle' });
       });
@@ -258,7 +314,46 @@ io.on('connection', (socket) => {
     if (worker) worker.emit('worker-terminal-input', { agentId, input });
     else {
       const agentData = processes.get(agentId);
-      if (agentData && agentData.proc) agentData.proc.stdin.write(input + '\n');
+      
+      // If a process is already running, send the input to stdin
+      if (agentData && agentData.proc) {
+        agentData.proc.stdin.write(input + '\n');
+        return;
+      }
+
+      // If no process is running, start a new gemini session
+      if (input.toLowerCase() === '/quit' || input.toLowerCase() === '/exit') {
+        socket.emit('terminal-output', { agentId, data: "[No process running to quit]\n" });
+        return;
+      }
+
+      console.log(`[RAW CLI -> ${agentId}] Executing: ${input}`);
+      socket.emit('agent-status', { agentId, status: 'thinking' });
+      
+      const cwd = agentData?.cwd || process.cwd();
+      
+      // If it starts with a slash, treat it as a raw CLI command/flag
+      const finalCmd = input.startsWith('/') 
+        ? `chcp 65001 > nul && gemini ${input}` 
+        : `chcp 65001 > nul && gemini "${input.replace(/"/g, '\\"')}"`;
+
+      const proc = spawn(finalCmd, [], { cwd, shell: true, env: { ...process.env, FORCE_COLOR: "1" } });
+
+      if (agentData) agentData.proc = proc;
+      else processes.set(agentId, { proc, isThinking: true, cwd });
+
+      let output = '';
+      proc.stdout.on('data', (data) => {
+        const text = data.toString();
+        output += text;
+        socket.emit('terminal-output', { agentId, data: text });
+      });
+
+      proc.on('close', (code) => {
+        if (processes.get(agentId)) processes.get(agentId).proc = null;
+        socket.emit('agent-status', { agentId, status: 'idle' });
+        // We don't send this to the Chat tab since it was a raw terminal command
+      });
     }
   });
 
@@ -293,6 +388,20 @@ io.on('connection', (socket) => {
       }
       socket.emit('agent-status', { agentId, status: 'idle' });
     }
+  });
+
+  socket.on('group-chat-message', ({ agentIds, message, projectBrief }) => {
+    console.log(`[GROUP CHAT] ${agentIds.length} agents invited: ${message}`);
+    
+    agentIds.forEach(agentId => {
+      // We simulate a group context by prepending other agent participants
+      const otherAgents = agentIds.filter(id => id !== agentId).length;
+      const groupContext = `CONFERENCE MODE: You are in a group chat with ${otherAgents} other specialists. Collaborate and build upon their ideas.\nProject Brief: ${projectBrief || 'N/A'}`;
+      
+      // Emit individual chat messages for each participating agent
+      // The frontend will aggregate these into one view
+      socket.emit('chat-message', { agentId, message: `${groupContext}\n\nUser: ${message}` });
+    });
   });
 });
 
