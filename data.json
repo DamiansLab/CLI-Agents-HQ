@@ -6,61 +6,12 @@
       "avatar": "👨‍💼",
       "hasNotification": false,
       "status": "idle",
-      "chatHistory": [
-        {
-          "sender": "user",
-          "text": "what files do you see in that folder?",
-          "timestamp": "2:53:48 μ.μ."
-        },
-        {
-          "sender": "agent",
-          "text": "I can see the following files and directories in the root folder:\n\n### **Core Configuration & Documentation**\n*   `.env` (Environment variables)\n*   `.gitignore` & `.gitattributes`\n*   `.node-version`\n*   `package.json` & `package-lock.json`\n*   `tsconfig.json`\n*   `next.config.js`\n*   `eslint.config.mjs`\n*   `drizzle.config.ts` (Database configuration)\n*   `README.md` & `GEMINI.MD` (Project mandates)\n*   Various system guides: `BLOG_POST_GUIDE.md`, `BLOG_SYSTEM.md`, `DEPLOYMENT.md`, `projects_guide.md`, `SYSTEM_AUDIT.txt`\n\n### **Scripts & Entry Points**\n*   `entry.js` (Custom startup file)\n*   `prepare-deploy.js` (Deployment bundling script)\n\n### **Directories**\n*   `data/` (Contains the SQLite `database.db`)\n*   `drizzle/` (Database migrations)\n*   `public/` (Static assets and `uploads/`)\n*   `src/` (The main application source code)\n*   `.git/` (Source control)\n\nIf you need details about a specific subdirectory (like `src/app` or `src/components`), let me know!\n",
-          "timestamp": "2:54:07 μ.μ."
-        },
-        {
-          "sender": "user",
-          "text": "what is the apps name?",
-          "timestamp": "2:54:25 μ.μ."
-        },
-        {
-          "sender": "agent",
-          "text": "The application's name is **DamiansLab**.\n",
-          "timestamp": "2:54:45 μ.μ."
-        }
-      ],
+      "chatHistory": [],
       "xp": 0,
       "level": 1,
       "skillId": "",
       "workingDirectory": "C:\\Users\\nikif\\Documents\\DamiansLab",
       "terminalHistory": [
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\wsg]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "I",
-        " can see the following files and directories in the root folder:\n\n### **Core Configuration & Documentation**\n*   `.env",
-        "` (Environment variables)\n*   `.gitignore` & `.gitattributes`\n*   `.node-version`\n*",
-        "   `package.json` & `package-lock.json`\n*   `tsconfig.json`\n*   ",
-        "`next.config.js`\n*   `eslint.config.mjs`\n*   `drizzle.",
-        "config.ts` (Database configuration)\n*   `README.md` & `GEMINI.MD` (Project",
-        " mandates)\n*   Various system guides: `BLOG_POST_GUIDE.md`, `BLOG_SYSTEM.md`, ",
-        "`DEPLOYMENT.md`, `projects_guide.md`, `SYSTEM_AUDIT.txt`\n\n### **Scripts",
-        " & Entry Points**\n*   `entry.js` (Custom startup file)\n*   `prepare-deploy",
-        ".js` (Deployment bundling script)\n\n### **Directories**\n*   `data/` (Contains the SQLite ",
-        "`database.db`)\n*   `drizzle/` (Database migrations)\n*   `public/` (",
-        "Static assets and `uploads/`)\n*   `src/` (The main application source code)\n*   `.",
-        "git/` (Source control)\n\nIf you need details about a specific subdirectory (like `src/app` or `src",
-        "/components`), let me know!",
-        "\n",
-        "The application's name is **DamiansLab**.",
-        "\n",
         "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
         "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n"
       ]
@@ -73,7 +24,11 @@
       "status": "idle",
       "chatHistory": [],
       "xp": 0,
-      "level": 1
+      "level": 1,
+      "terminalHistory": [
+        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
+        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n"
+      ]
     },
     {
       "id": "sxtp17itm",
@@ -83,7 +38,11 @@
       "status": "idle",
       "chatHistory": [],
       "xp": 0,
-      "level": 1
+      "level": 1,
+      "terminalHistory": [
+        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
+        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n"
+      ]
     },
     {
       "id": "peuyvjwlt",
@@ -135,53 +94,11 @@
       "xp": 0,
       "level": 1
     },
-    {
-      "id": "gfj5nid2u",
-      "name": "Alice #477",
-      "avatar": "👩‍💻",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    },
-    {
-      "id": "vtqdhzokl",
-      "name": "Ian #552",
-      "avatar": "🦸",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    }
+    null,
+    null
   ],
   "breakRoomAgents": [],
   "logs": [
-    {
-      "id": "g80y2u2wm",
-      "timestamp": "2:14:55 μ.μ.",
-      "message": "Bob #711 role changed to: Generalist.",
-      "type": "info"
-    },
-    {
-      "id": "xj1k0mggf",
-      "timestamp": "2:15:06 μ.μ.",
-      "message": "Bob #711 is now working in: C:\\Users\\nikif\\Documents\\wsg",
-      "type": "info"
-    },
-    {
-      "id": "zzncdt8ar",
-      "timestamp": "2:15:06 μ.μ.",
-      "message": "Bob #711 is now working in: C:\\Users\\nikif\\Documents\\wsg",
-      "type": "info"
-    },
-    {
-      "id": "t0z64hoks",
-      "timestamp": "2:15:18 μ.μ.",
-      "message": "Bob #711 started thinking...",
-      "type": "info"
-    },
     {
       "id": "fu1sl1pt4",
       "timestamp": "2:15:45 μ.μ.",
@@ -457,6 +374,30 @@
       "timestamp": "3:09:54 μ.μ.",
       "message": "Hired Ian #552 at Station 10.",
       "type": "success"
+    },
+    {
+      "id": "xlnsk0sf3",
+      "timestamp": "3:21:59 μ.μ.",
+      "message": "HQ capacity reached! No free workstations.",
+      "type": "error"
+    },
+    {
+      "id": "ai9b9xmlk",
+      "timestamp": "3:21:59 μ.μ.",
+      "message": "HQ capacity reached! No free workstations.",
+      "type": "error"
+    },
+    {
+      "id": "3x1jbdr9i",
+      "timestamp": "3:22:02 μ.μ.",
+      "message": "Ian #552 was terminated from the team.",
+      "type": "warning"
+    },
+    {
+      "id": "tnk5oavts",
+      "timestamp": "3:22:05 μ.μ.",
+      "message": "Alice #477 was terminated from the team.",
+      "type": "warning"
     }
   ],
   "globalContext": "",
