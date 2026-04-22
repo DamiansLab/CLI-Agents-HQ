@@ -1,4 +1,8 @@
-<img width="1911" height="894" alt="image" src="https://github.com/user-attachments/assets/b87cfddb-2cd6-46e8-bbf1-55dc1a899ea1" />
+<img 
+  alt="image" 
+  style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+  src="https://github.com/user-attachments/assets/b87cfddb-2cd6-46e8-bbf1-55dc1a899ea1" 
+  />
 
 
 # 🤖 CLI Agents HQ
@@ -14,11 +18,7 @@ An interactive, high-fidelity orchestration dashboard for managing multiple Gemi
 5. **Level Up:** Use the **✨ Reflect** button to help agents learn and gain XP. Senior agents get upgraded workstations!
 6. **Lounge Management:** Use the **☕ LOUNGE** to manage off-duty agents. You can recall multiple agents in batch before closing the lounge.
 7. **System Diagnostics:** Access the **📟 Logs** modal for real-time tracking of agent activity and error handling.
-<img 
-  src="https://github.com/user-attachments/assets/046c1b3c-506f-4b44-99ec-6d250f7624e7" 
-  alt="image" 
-  style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
-/>
+
 <img 
    src="https://github.com/user-attachments/assets/046c1b3c-506f-4b44-99ec-6d250f7624e7" 
    alt="image" 
