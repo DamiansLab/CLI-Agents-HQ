@@ -9,6 +9,12 @@
 
 An interactive, high-fidelity orchestration dashboard for managing multiple Gemini CLI agents. This app transforms your desktop into a professional multi-agent command center with persistent memory, team collaboration, and a dynamic office ecosystem.
 
+<img 
+  alt="image" 
+  style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+  src="https://github.com/user-attachments/assets/23565329-8e42-4d74-adbf-c49d4880c5a2" 
+  />
+
 ## 🎮 How to Use
 
 1. **Hire & Assign:** Hire agents and click their desks to assign specialized roles.
@@ -19,10 +25,11 @@ An interactive, high-fidelity orchestration dashboard for managing multiple Gemi
 6. **Lounge Management:** Use the **☕ LOUNGE** to manage off-duty agents. You can recall multiple agents in batch before closing the lounge.
 7. **System Diagnostics:** Access the **📟 Logs** modal for real-time tracking of agent activity and error handling.
 
+
 <img 
-   src="https://github.com/user-attachments/assets/046c1b3c-506f-4b44-99ec-6d250f7624e7" 
-   alt="image" 
+  alt="image" 
    style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
+   src="https://github.com/user-attachments/assets/046c1b3c-506f-4b44-99ec-6d250f7624e7" 
    />
 <img 
    alt="image" 
