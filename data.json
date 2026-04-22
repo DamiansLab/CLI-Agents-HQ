@@ -65,78 +65,99 @@
         "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n"
       ]
     },
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null,
-    null
+    {
+      "id": "qpastgyz5",
+      "name": "Ian #186",
+      "avatar": "🕵️",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "sxtp17itm",
+      "name": "George #495",
+      "avatar": "👩‍💻",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "peuyvjwlt",
+      "name": "Oscar #490",
+      "avatar": "🥷",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "3zhl2rqin",
+      "name": "Oscar #531",
+      "avatar": "👩‍💻",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "i2qix1oki",
+      "name": "Laura #207",
+      "avatar": "👩‍💼",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "6ps8laqpg",
+      "name": "Julia #773",
+      "avatar": "🤖",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "061q0bafi",
+      "name": "Diana #297",
+      "avatar": "👨‍💼",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "gfj5nid2u",
+      "name": "Alice #477",
+      "avatar": "👩‍💻",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    },
+    {
+      "id": "vtqdhzokl",
+      "name": "Ian #552",
+      "avatar": "🦸",
+      "hasNotification": false,
+      "status": "idle",
+      "chatHistory": [],
+      "xp": 0,
+      "level": 1
+    }
   ],
   "breakRoomAgents": [],
   "logs": [
-    {
-      "id": "s5tj10jc8",
-      "timestamp": "2:08:15 μ.μ.",
-      "message": "SEO Editor started thinking...",
-      "type": "info"
-    },
-    {
-      "id": "2d9h30zeo",
-      "timestamp": "2:11:20 μ.μ.",
-      "message": "SEO Editor was terminated from the team.",
-      "type": "warning"
-    },
-    {
-      "id": "ds1dxwox3",
-      "timestamp": "2:11:22 μ.μ.",
-      "message": "Hired Bob #711 at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "cb3yf6z20",
-      "timestamp": "2:11:22 μ.μ.",
-      "message": "Hired Bob #711 at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "ozai16jdl",
-      "timestamp": "2:11:23 μ.μ.",
-      "message": "Hired Diana #531 at Station 2.",
-      "type": "success"
-    },
-    {
-      "id": "bhakqpnbg",
-      "timestamp": "2:11:23 μ.μ.",
-      "message": "Hired Diana #531 at Station 2.",
-      "type": "success"
-    },
-    {
-      "id": "14wjpjdgj",
-      "timestamp": "2:11:30 μ.μ.",
-      "message": "Diana #531 was terminated from the team.",
-      "type": "warning"
-    },
-    {
-      "id": "1cnrnv7h9",
-      "timestamp": "2:11:34 μ.μ.",
-      "message": "Bob #711 role changed to: Architect.",
-      "type": "info"
-    },
-    {
-      "id": "jjysba3fx",
-      "timestamp": "2:11:34 μ.μ.",
-      "message": "Bob #711 role changed to: Architect.",
-      "type": "info"
-    },
-    {
-      "id": "qs857oa2x",
-      "timestamp": "2:14:55 μ.μ.",
-      "message": "Bob #711 role changed to: Generalist.",
-      "type": "info"
-    },
     {
       "id": "g80y2u2wm",
       "timestamp": "2:14:55 μ.μ.",
@@ -327,6 +348,114 @@
       "id": "wfkr1jzrq",
       "timestamp": "2:57:38 μ.μ.",
       "message": "Bob #711 returned to work at Station 1.",
+      "type": "success"
+    },
+    {
+      "id": "058vkypkj",
+      "timestamp": "3:09:50 μ.μ.",
+      "message": "Hired Ian #186 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "oioko1sj8",
+      "timestamp": "3:09:50 μ.μ.",
+      "message": "Hired Ian #186 at Station 2.",
+      "type": "success"
+    },
+    {
+      "id": "g93j3syre",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired George #495 at Station 3.",
+      "type": "success"
+    },
+    {
+      "id": "1cuq71v0n",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired George #495 at Station 3.",
+      "type": "success"
+    },
+    {
+      "id": "ql9yvrdqc",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Oscar #490 at Station 4.",
+      "type": "success"
+    },
+    {
+      "id": "nhaxq43jo",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Oscar #490 at Station 4.",
+      "type": "success"
+    },
+    {
+      "id": "rb6wa2m4t",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Oscar #531 at Station 5.",
+      "type": "success"
+    },
+    {
+      "id": "q3jsgu5pd",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Oscar #531 at Station 5.",
+      "type": "success"
+    },
+    {
+      "id": "hb6ja2cs7",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Laura #207 at Station 6.",
+      "type": "success"
+    },
+    {
+      "id": "eeyhjt0zs",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Laura #207 at Station 6.",
+      "type": "success"
+    },
+    {
+      "id": "wrsm6f0w3",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Julia #773 at Station 7.",
+      "type": "success"
+    },
+    {
+      "id": "z9vzz3mu2",
+      "timestamp": "3:09:52 μ.μ.",
+      "message": "Hired Julia #773 at Station 7.",
+      "type": "success"
+    },
+    {
+      "id": "j9i1k0bvw",
+      "timestamp": "3:09:53 μ.μ.",
+      "message": "Hired Diana #297 at Station 8.",
+      "type": "success"
+    },
+    {
+      "id": "jdlbuernv",
+      "timestamp": "3:09:53 μ.μ.",
+      "message": "Hired Diana #297 at Station 8.",
+      "type": "success"
+    },
+    {
+      "id": "opuf6m1mx",
+      "timestamp": "3:09:53 μ.μ.",
+      "message": "Hired Alice #477 at Station 9.",
+      "type": "success"
+    },
+    {
+      "id": "qmzyw13lr",
+      "timestamp": "3:09:53 μ.μ.",
+      "message": "Hired Alice #477 at Station 9.",
+      "type": "success"
+    },
+    {
+      "id": "mrkfl8q6t",
+      "timestamp": "3:09:54 μ.μ.",
+      "message": "Hired Ian #552 at Station 10.",
+      "type": "success"
+    },
+    {
+      "id": "6894883p9",
+      "timestamp": "3:09:54 μ.μ.",
+      "message": "Hired Ian #552 at Station 10.",
       "type": "success"
     }
   ],
