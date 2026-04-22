@@ -59,6 +59,7 @@ An interactive, high-fidelity orchestration dashboard for managing multiple Gemi
 - **Frontend:** React + TypeScript + Vite + Framer Motion.
 - **Bridge-Ready:** Hybrid support for local execution or remote worker connections.
 - **Persistence Layer:** Reliable state management (`data.json`) ensuring chat histories, agent levels, and directories are never lost.
+- **Open Source:** Licensed under the **GNU General Public License v3.0 (GPL-3.0)**, encouraging collaboration and transparency.
 - **Locale Optimization:** Integrated UTF-8 (chcp 65001) forcing for stable operation across all Windows environment settings.
 
 ## 📥 Installation
