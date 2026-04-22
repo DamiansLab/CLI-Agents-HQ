@@ -478,7 +478,7 @@ function App() {
         <BreakRoom 
           agents={breakRoomAgents} 
           onClose={() => setShowStaffLounge(false)} 
-          onReturnAgent={(a) => { returnFromBreak(a.id); setShowStaffLounge(false); }} 
+          onReturnAgent={(a) => { returnFromBreak(a.id); }} 
         />
       )}
 

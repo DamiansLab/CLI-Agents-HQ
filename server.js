@@ -14,7 +14,7 @@ const io = new Server(server, {
   }
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5500;
 const dataFilePath = path.join(__dirname, 'data.json');
 const skillsDirPath = path.join(__dirname, 'skills');
 
@@ -162,13 +162,14 @@ app.post('/api/state', (req, res) => {
 
 app.post('/api/browse', (req, res) => {
   const worker = getFirstWorker();
+  const targetDir = req.body.path || process.cwd();
+  
   if (worker) {
     const requestId = Math.random().toString(36).substr(2, 9);
     pendingRequests.set(requestId, res);
-    worker.emit('worker-browse', { path: req.body.path, requestId });
+    worker.emit('worker-browse', { path: targetDir, requestId });
   } else {
     // Local browse
-    const targetDir = req.body.path || process.cwd();
     try {
       const items = fs.readdirSync(targetDir, { withFileTypes: true });
       res.json({ 
@@ -177,7 +178,10 @@ app.post('/api/browse', (req, res) => {
         files: items.filter(i => i.isFile()).map(i => i.name),
         parent: path.dirname(targetDir) 
       });
-    } catch (err) { res.status(500).json({ error: err.message }); }
+    } catch (err) { 
+      console.error(`Browse error for ${targetDir}:`, err.message);
+      res.status(500).json({ error: err.message }); 
+    }
   }
 });
 

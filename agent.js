@@ -3,7 +3,7 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000';
+const SERVER_URL = process.env.SERVER_URL || 'http://localhost:5500';
 const socket = io(SERVER_URL);
 
 console.log(`Connecting to Dashboard at ${SERVER_URL}...`);

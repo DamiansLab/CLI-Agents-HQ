@@ -173,22 +173,45 @@ const AgentCard: React.FC<AgentCardProps> = ({
   };
 
   const browseFolder = async (path: string = "") => {
-    const res = await fetch('/api/browse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ path })
-    });
-    const data = await res.json();
-    setCurrentPath(data.currentPath);
-    setFolders(data.folders);
-    setFiles(data.files || []);
-    setParentPath(data.parent);
+    try {
+      const res = await fetch('/api/browse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path })
+      });
+      const data = await res.json();
+      if (data.error) {
+        console.error("Browse error:", data.error);
+        return;
+      }
+      setCurrentPath(data.currentPath || "");
+      setFolders(data.folders || []);
+      setFiles(data.files || []);
+      setParentPath(data.parent || "");
+    } catch (err) {
+      console.error("Failed to browse folder:", err);
+    }
   };
 
   useEffect(() => {
     if (view === 'folder') browseFolder(currentPath);
     if (view === 'chat' && agent.hasNotification) onUpdateAgent(agent.id, { hasNotification: false });
   }, [view]);
+
+  const joinPath = (base: string, segment: string) => {
+    if (!base) return segment;
+    const sep = base.includes('/') ? '/' : '\\';
+    if (base.endsWith(sep)) return base + segment;
+    return base + sep + segment;
+  };
+
+  const [showSavedFeedback, setShowSavedFeedback] = useState(false);
+
+  const handleSetDirectory = () => {
+    onUpdateAgent(agent.id, { workingDirectory: currentPath });
+    setShowSavedFeedback(true);
+    setTimeout(() => setShowSavedFeedback(false), 2000);
+  };
 
   return (
     <motion.div 
@@ -423,7 +446,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
               <div style={pathHeaderStyle}>{currentPath}</div>
               <div style={fileListStyle}>
                 <div onClick={() => browseFolder(parentPath)} style={itemStyle}><ChevronUp size={16}/> .. (Up)</div>
-                {folders.map(f => <div key={f} onClick={() => browseFolder(currentPath + pathSeparator + f)} style={itemStyle}>📁 {f}</div>)}
+                {folders.map(f => <div key={f} onClick={() => browseFolder(joinPath(currentPath, f))} style={itemStyle}>📁 {f}</div>)}
                 {files.map(f => (
                   <div key={f} style={fileItemStyle}>
                     <span>📄 {f}</span>
@@ -431,7 +454,9 @@ const AgentCard: React.FC<AgentCardProps> = ({
                   </div>
                 ))}
               </div>
-              <button onClick={() => onUpdateAgent(agent.id, { workingDirectory: currentPath })} style={primaryBtnStyle}>Set Directory</button>
+              <button onClick={handleSetDirectory} style={primaryBtnStyle}>
+                {showSavedFeedback ? "✅ SAVED!" : "Set Directory"}
+              </button>
             </div>
           )}
         </div>
