@@ -98,10 +98,21 @@ function App() {
   const socketRef = useRef<Socket | null>(null);
 
   const updateAgent = (agentId: string, updates: Partial<Agent>) => {
-    const updater = (a: Agent | null) => (a && a.id === agentId) ? { ...a, ...updates } : a;
+    const updater = (a: Agent | null) => {
+      if (a && a.id === agentId) {
+        if (updates.skillId !== undefined && updates.skillId !== a.skillId) {
+          addLog(`${a.name} role changed to: ${updates.skillId || 'Generalist'}.`, 'info');
+        }
+        if (updates.workingDirectory !== undefined && updates.workingDirectory !== a.workingDirectory) {
+          addLog(`${a.name} is now working in: ${updates.workingDirectory}`, 'info');
+        }
+        return { ...a, ...updates };
+      }
+      return a;
+    };
     
     setWorkstations(prev => prev.map(updater));
-    setBreakRoomAgents(prev => prev.map(a => (a.id === agentId) ? { ...a, ...updates } : a));
+    setBreakRoomAgents(prev => prev.map(a => updater(a) as Agent));
     
     setSelectedAgent(prev => {
       if (prev && prev.agent.id === agentId) {
@@ -230,66 +241,59 @@ function App() {
       name: `${randomName} #${Math.floor(Math.random() * 1000)}`,
       avatar: randomAvatar,
       hasNotification: false,
-      status: 'offline',
-      chatHistory: []
+      status: 'idle',
+      chatHistory: [],
+      xp: 0,
+      level: 1
     };
     
     setWorkstations(prev => {
       const emptySlotIndex = prev.findIndex(slot => slot === null);
-      if (emptySlotIndex === -1) return prev;
+      if (emptySlotIndex === -1) {
+        addLog("HQ capacity reached! No free workstations.", "error");
+        return prev;
+      }
       const newWorkstations = [...prev];
       newWorkstations[emptySlotIndex] = newAgent;
+      addLog(`Hired ${newAgent.name} at Station ${emptySlotIndex + 1}.`, 'success');
       return newWorkstations;
     });
-    addLog(`Hired new agent: ${newAgent.name}`, 'success');
   };
 
   const handleFire = (agentId: string) => {
-    if (window.confirm(`Fire agent?`)) {
+    const agent = [...workstations, ...breakRoomAgents].find(a => a?.id === agentId);
+    if (window.confirm(`Are you sure you want to fire ${agent?.name}?`)) {
       setWorkstations(prev => prev.map(slot => (slot && slot.id === agentId) ? null : slot));
       setBreakRoomAgents(prev => prev.filter(a => a.id !== agentId));
       setActiveChats(prev => prev.filter(id => id !== agentId));
-      addLog(`Agent has been terminated.`, 'error');
+      addLog(`${agent?.name} was terminated from the team.`, 'warning');
     }
   };
 
   const sendToBreak = (agentId: string) => {
-    // Find the agent first
     const agent = workstations.find(a => a?.id === agentId);
     if (!agent) return;
-
-    // Add to break room first
-    setBreakRoomAgents(prev => {
-      if (prev.find(a => a.id === agentId)) return prev;
-      return [...prev, agent];
-    });
-
-    // Then remove from workstations
+    setBreakRoomAgents(prev => [...prev, agent]);
     setWorkstations(prev => prev.map(slot => slot?.id === agentId ? null : slot));
-    
-    addLog(`${agent.name} is on break.`, 'info');
+    addLog(`${agent.name} is heading to the Staff Lounge for a break.`, 'info');
   };
 
   const returnFromBreak = (agentId: string) => {
     const agent = breakRoomAgents.find(a => a.id === agentId);
     if (!agent) return;
-
     setWorkstations(prev => {
       const emptySlotIndex = prev.findIndex(slot => slot === null);
       if (emptySlotIndex === -1) {
+        addLog(`No desk available for ${agent.name}.`, 'error');
         alert("No free workstations!");
         return prev;
       }
-      
-      // Remove from break room only if we found a workstation
       setBreakRoomAgents(prevBreak => prevBreak.filter(a => a.id !== agentId));
-      
       const newWork = [...prev];
       newWork[emptySlotIndex] = agent;
+      addLog(`${agent.name} returned to work at Station ${emptySlotIndex + 1}.`, 'success');
       return newWork;
     });
-
-    addLog(`${agent.name} is back to work.`, 'info');
   };
 
   const openAgent = (agent: Agent, view: 'profile' | 'terminal' | 'chat' | 'folder' = 'profile') => {
