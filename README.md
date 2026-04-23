@@ -1,8 +1,5 @@
-<img 
-  alt="image" 
-  style="display: block; margin: 0 auto; max-width: 30%; height: 30%;" 
-  src="/favicon_CLI_AGENTS/android-chrome-512x512.png" 
-  />
+<img width="512" height="512" alt="android-chrome-512x512" src="https://github.com/user-attachments/assets/5b7033f8-108e-4a5b-810a-b51d98d385b1" />
+
 
 
 # 🤖 CLI Agents HQ
@@ -12,6 +9,9 @@ CLI Agents HQ is a professional management hub for your Gemini CLI agents. It tr
 
 ---
 
+<img width="1906" height="899" alt="581980719-251863dc-e3c2-4627-ab03-1c37154bcb57" src="https://github.com/user-attachments/assets/66e29e66-6cde-439b-a9b7-13701091c263" />
+
+
 ## 🎯 What the app does
 CLI Agents HQ bridges the gap between powerful AI execution and intuitive team management. It allows you to:
 - **Orchestrate specialized teams:** "Hire" multiple agents and assign them expert roles (Architect, Security Auditor, Test Engineer, etc.) from a library of custom skills.
@@ -19,6 +19,12 @@ CLI Agents HQ bridges the gap between powerful AI execution and intuitive team m
 - **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
 - **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
 - **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations, saving new insights permanently to their skill files.
+
+
+<img width="2440" height="1021" alt="581986525-23565329-8e42-4d74-adbf-c49d4880c5a2" src="https://github.com/user-attachments/assets/6130c541-84fe-42d0-86e6-f5b15b8bd2dd" />
+<img width="1911" height="894" alt="581976571-b87cfddb-2cd6-46e8-bbf1-55dc1a899ea1" src="https://github.com/user-attachments/assets/05b23980-edf4-4460-9ed1-65cd057a3778" />
+<img width="803" height="601" alt="581979914-046c1b3c-506f-4b44-99ec-6d250f7624e7" src="https://github.com/user-attachments/assets/e9d8261e-327f-4798-8002-8714eb2ddb07" />
+<img width="857" height="603" alt="581980055-492336ef-f23c-4938-bcfa-b1cc546da2a5" src="https://github.com/user-attachments/assets/bd7858aa-27e1-4998-89f9-f9e1a47ddf60" />
 
 ---
 
