@@ -100,24 +100,22 @@ async function start() {
     console.log(`[USER -> ${agentName || agentId}] ${message} (Skill: ${skillId || 'none'})`);
     socket.emit('worker-agent-status', { agentId, status: 'thinking' });
     
-    let finalSpawnCmd = '';
-    if (isSlashCommand) {
-      console.log(`[RAW CLI -> ${agentId}] ${message}`);
-      finalSpawnCmd = `chcp 65001 > nul && gemini ${message}`;
-    } else {
-      const fullPrompt = skillContent 
-        ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}`
-        : message;
-      finalSpawnCmd = `chcp 65001 > nul && gemini "${fullPrompt.replace(/"/g, '\\"')}"`;
-    }
-
-    const proc = spawn(finalSpawnCmd, [], { 
+    // On Windows, 'gemini' is usually 'gemini.cmd'. shell: true finds it and handles stdin piping correctly.
+    const proc = spawn('gemini', [], { 
       cwd: agentData.cwd, 
       shell: true,
       env: { ...process.env, FORCE_COLOR: "1" }
     });
 
     agentData.proc = proc;
+
+    // Construct the prompt
+    const fullPrompt = (skillContent && !isSlashCommand)
+      ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}`
+      : message;
+    
+    // Write the prompt to stdin and then a newline to "enter" it.
+    proc.stdin.write(fullPrompt + '\n');
 
     let output = '';
     proc.stdout.on('data', (data) => {
