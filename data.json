@@ -1,38 +1,8 @@
 {
   "workstations": [
     {
-      "id": "jv5xtb6lv",
-      "name": "Bob #711",
-      "avatar": "👨‍💼",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1,
-      "skillId": "",
-      "workingDirectory": "C:\\Users\\nikif\\Documents\\DamiansLab",
-      "terminalHistory": [
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\DamiansLab]\n"
-      ]
-    },
-    {
-      "id": "qpastgyz5",
-      "name": "Ian #186",
-      "avatar": "🕵️",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1,
-      "terminalHistory": [
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n"
-      ]
-    },
-    {
-      "id": "sxtp17itm",
-      "name": "George #495",
+      "id": "0uaeu7yxu",
+      "name": "Alice #498",
       "avatar": "👩‍💻",
       "hasNotification": false,
       "status": "idle",
@@ -40,364 +10,51 @@
       "xp": 0,
       "level": 1,
       "terminalHistory": [
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
-        "[Agent initialized locally in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n"
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n"
       ]
     },
-    {
-      "id": "peuyvjwlt",
-      "name": "Oscar #490",
-      "avatar": "🥷",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    },
-    {
-      "id": "3zhl2rqin",
-      "name": "Oscar #531",
-      "avatar": "👩‍💻",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    },
-    {
-      "id": "i2qix1oki",
-      "name": "Laura #207",
-      "avatar": "👩‍💼",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    },
-    {
-      "id": "6ps8laqpg",
-      "name": "Julia #773",
-      "avatar": "🤖",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    },
-    {
-      "id": "061q0bafi",
-      "name": "Diana #297",
-      "avatar": "👨‍💼",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1
-    },
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
     null,
     null
   ],
   "breakRoomAgents": [],
   "logs": [
     {
-      "id": "fu1sl1pt4",
-      "timestamp": "2:15:45 μ.μ.",
-      "message": "Response from Bob #711: I will examine the project files, starting with th...",
-      "type": "info"
-    },
-    {
-      "id": "3zuuduoth",
-      "timestamp": "2:16:31 μ.μ.",
-      "message": "Bob #711 started thinking...",
-      "type": "info"
-    },
-    {
-      "id": "6voiy0rf4",
-      "timestamp": "2:17:14 μ.μ.",
-      "message": "Response from Bob #711: I will list the folders in the root directory to g...",
-      "type": "info"
-    },
-    {
-      "id": "2ysdals68",
-      "timestamp": "2:20:02 μ.μ.",
-      "message": "Bob #711 started thinking...",
-      "type": "info"
-    },
-    {
-      "id": "b108v0864",
-      "timestamp": "2:20:27 μ.μ.",
-      "message": "Response from Bob #711: I can see the following files and directories in y...",
-      "type": "info"
-    },
-    {
-      "id": "vadixp5sl",
-      "timestamp": "2:21:15 μ.μ.",
-      "message": "Bob #711 started thinking...",
-      "type": "info"
-    },
-    {
-      "id": "oyt46dtsd",
-      "timestamp": "2:23:43 μ.μ.",
-      "message": "Agent response from jv5x: I will list the files in the current directory to ...",
-      "type": "info"
-    },
-    {
-      "id": "3g5cgq18q",
-      "timestamp": "2:24:36 μ.μ.",
-      "message": "Agent response from jv5x: I will list the files in the project root director...",
-      "type": "info"
-    },
-    {
-      "id": "0o67nry4a",
-      "timestamp": "2:25:34 μ.μ.",
-      "message": "Agent response from jv5x: I'm ready to work on the **Work Schedule (Παρακολο...",
-      "type": "info"
-    },
-    {
-      "id": "sljyctunx",
-      "timestamp": "2:26:35 μ.μ.",
-      "message": "Agent response from jv5x: I see that you have already implemented a page for...",
-      "type": "info"
-    },
-    {
-      "id": "gf9dpfk9k",
-      "timestamp": "2:48:36 μ.μ.",
-      "message": "Hired George #341 at Station 2.",
-      "type": "success"
-    },
-    {
-      "id": "qqvoqugrw",
-      "timestamp": "2:48:36 μ.μ.",
-      "message": "Hired George #341 at Station 2.",
-      "type": "success"
-    },
-    {
-      "id": "4zu2e5rnq",
-      "timestamp": "2:48:40 μ.μ.",
-      "message": "George #341 was terminated from the team.",
+      "id": "2552a6cqr",
+      "timestamp": "1:26:11 μ.μ.",
+      "message": "Julia #391 was terminated from the team.",
       "type": "warning"
     },
     {
-      "id": "b1jpeov60",
-      "timestamp": "2:49:18 μ.μ.",
-      "message": "Hired Charlie #764 at Station 2.",
+      "id": "i4il72mbs",
+      "timestamp": "1:41:00 μ.μ.",
+      "message": "Hired Alice #498 at Station 1.",
       "type": "success"
     },
     {
-      "id": "xiudzxowg",
-      "timestamp": "2:49:18 μ.μ.",
-      "message": "Hired Charlie #764 at Station 2.",
+      "id": "this3f650",
+      "timestamp": "1:41:00 μ.μ.",
+      "message": "Hired Alice #498 at Station 1.",
       "type": "success"
     },
     {
-      "id": "78t3xsprt",
-      "timestamp": "2:49:20 μ.μ.",
-      "message": "Charlie #764 was terminated from the team.",
-      "type": "warning"
-    },
-    {
-      "id": "dglq47jqf",
-      "timestamp": "2:52:21 μ.μ.",
-      "message": "Bob #711 is now working in: C:\\Users\\nikif\\Documents\\DamiansLab",
+      "id": "065biygea",
+      "timestamp": "1:42:28 μ.μ.",
+      "message": "Verified Local Agent connected.",
       "type": "info"
     },
     {
-      "id": "jvaik3hjj",
-      "timestamp": "2:52:21 μ.μ.",
-      "message": "Bob #711 is now working in: C:\\Users\\nikif\\Documents\\DamiansLab",
-      "type": "info"
-    },
-    {
-      "id": "hx5fy76lx",
-      "timestamp": "2:53:21 μ.μ.",
-      "message": "Bob #711 is heading to the Staff Lounge for a break.",
-      "type": "info"
-    },
-    {
-      "id": "yzqddqka3",
-      "timestamp": "2:53:25 μ.μ.",
-      "message": "Bob #711 returned to work at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "jpbn108o6",
-      "timestamp": "2:53:25 μ.μ.",
-      "message": "Bob #711 returned to work at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "7u5z4c9w9",
-      "timestamp": "2:53:48 μ.μ.",
-      "message": "Bob #711 started thinking...",
-      "type": "info"
-    },
-    {
-      "id": "ux7g1josy",
-      "timestamp": "2:54:07 μ.μ.",
-      "message": "Response from Bob #711: I can see the following files and directories in t...",
-      "type": "info"
-    },
-    {
-      "id": "bjjy7k6bk",
-      "timestamp": "2:54:25 μ.μ.",
-      "message": "Bob #711 started thinking...",
-      "type": "info"
-    },
-    {
-      "id": "7wlgci2uf",
-      "timestamp": "2:54:45 μ.μ.",
-      "message": "Response from Bob #711: The application's name is **DamiansLab**.\n...",
-      "type": "info"
-    },
-    {
-      "id": "cg6abix5t",
-      "timestamp": "2:55:41 μ.μ.",
-      "message": "Bob #711 is heading to the Staff Lounge for a break.",
-      "type": "info"
-    },
-    {
-      "id": "fq1t1r6df",
-      "timestamp": "2:57:38 μ.μ.",
-      "message": "Bob #711 returned to work at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "wfkr1jzrq",
-      "timestamp": "2:57:38 μ.μ.",
-      "message": "Bob #711 returned to work at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "058vkypkj",
-      "timestamp": "3:09:50 μ.μ.",
-      "message": "Hired Ian #186 at Station 2.",
-      "type": "success"
-    },
-    {
-      "id": "oioko1sj8",
-      "timestamp": "3:09:50 μ.μ.",
-      "message": "Hired Ian #186 at Station 2.",
-      "type": "success"
-    },
-    {
-      "id": "g93j3syre",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired George #495 at Station 3.",
-      "type": "success"
-    },
-    {
-      "id": "1cuq71v0n",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired George #495 at Station 3.",
-      "type": "success"
-    },
-    {
-      "id": "ql9yvrdqc",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Oscar #490 at Station 4.",
-      "type": "success"
-    },
-    {
-      "id": "nhaxq43jo",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Oscar #490 at Station 4.",
-      "type": "success"
-    },
-    {
-      "id": "rb6wa2m4t",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Oscar #531 at Station 5.",
-      "type": "success"
-    },
-    {
-      "id": "q3jsgu5pd",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Oscar #531 at Station 5.",
-      "type": "success"
-    },
-    {
-      "id": "hb6ja2cs7",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Laura #207 at Station 6.",
-      "type": "success"
-    },
-    {
-      "id": "eeyhjt0zs",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Laura #207 at Station 6.",
-      "type": "success"
-    },
-    {
-      "id": "wrsm6f0w3",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Julia #773 at Station 7.",
-      "type": "success"
-    },
-    {
-      "id": "z9vzz3mu2",
-      "timestamp": "3:09:52 μ.μ.",
-      "message": "Hired Julia #773 at Station 7.",
-      "type": "success"
-    },
-    {
-      "id": "j9i1k0bvw",
-      "timestamp": "3:09:53 μ.μ.",
-      "message": "Hired Diana #297 at Station 8.",
-      "type": "success"
-    },
-    {
-      "id": "jdlbuernv",
-      "timestamp": "3:09:53 μ.μ.",
-      "message": "Hired Diana #297 at Station 8.",
-      "type": "success"
-    },
-    {
-      "id": "opuf6m1mx",
-      "timestamp": "3:09:53 μ.μ.",
-      "message": "Hired Alice #477 at Station 9.",
-      "type": "success"
-    },
-    {
-      "id": "qmzyw13lr",
-      "timestamp": "3:09:53 μ.μ.",
-      "message": "Hired Alice #477 at Station 9.",
-      "type": "success"
-    },
-    {
-      "id": "mrkfl8q6t",
-      "timestamp": "3:09:54 μ.μ.",
-      "message": "Hired Ian #552 at Station 10.",
-      "type": "success"
-    },
-    {
-      "id": "6894883p9",
-      "timestamp": "3:09:54 μ.μ.",
-      "message": "Hired Ian #552 at Station 10.",
-      "type": "success"
-    },
-    {
-      "id": "xlnsk0sf3",
-      "timestamp": "3:21:59 μ.μ.",
-      "message": "HQ capacity reached! No free workstations.",
+      "id": "1rqz0is4d",
+      "timestamp": "1:42:49 μ.μ.",
+      "message": "Local Agent disconnected.",
       "type": "error"
-    },
-    {
-      "id": "ai9b9xmlk",
-      "timestamp": "3:21:59 μ.μ.",
-      "message": "HQ capacity reached! No free workstations.",
-      "type": "error"
-    },
-    {
-      "id": "3x1jbdr9i",
-      "timestamp": "3:22:02 μ.μ.",
-      "message": "Ian #552 was terminated from the team.",
-      "type": "warning"
-    },
-    {
-      "id": "tnk5oavts",
-      "timestamp": "3:22:05 μ.μ.",
-      "message": "Alice #477 was terminated from the team.",
-      "type": "warning"
     }
   ],
   "globalContext": "",

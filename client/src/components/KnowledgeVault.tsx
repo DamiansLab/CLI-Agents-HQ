@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Search, Database, Plus, Trash2, ChevronRight } from 'lucide-react';
+import { Search, Database, Plus, Trash2, ChevronRight } from 'lucide-react';
 
 interface VaultItem {
   id: string;

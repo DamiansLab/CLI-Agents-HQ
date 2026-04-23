@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Terminal, Trash2 } from 'lucide-react';
+import { Terminal, Trash2 } from 'lucide-react';
 
 interface LogEntry {
   id: string;

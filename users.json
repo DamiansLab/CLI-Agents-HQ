@@ -1,0 +1,9 @@
+[
+  {
+    "id": "admin-1",
+    "username": "Admin",
+    "email": "admin@cliagenthq.local",
+    "password": "$2b$10$36X.rcVF/.B1tVp7ykTZWO0SOZdt1n9sbaII8o6DwT5vUhxM9IdTS",
+    "role": "Admin"
+  }
+]

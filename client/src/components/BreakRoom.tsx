@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Coffee, LogIn } from 'lucide-react';
+import { Coffee, LogIn } from 'lucide-react';
 
 interface Agent {
   id: string;

@@ -136,23 +136,26 @@ const Workstation: React.FC<WorkstationProps> = ({ id, agent, onClick }) => {
             borderRadius: '8px',
           }}>
             <button 
+              className="tool-btn"
               onClick={(e) => { e.stopPropagation(); onClick(agent, 'folder'); }}
               title="Directory" 
               style={toolBtnStyle}
             ><Folder size={16} /></button>
             <button 
+              className="tool-btn"
               onClick={(e) => { e.stopPropagation(); onClick(agent, 'terminal'); }}
               title="Terminal" 
               style={toolBtnStyle}
             ><Terminal size={16} /></button>
             <button 
+              className="tool-btn"
               onClick={(e) => { e.stopPropagation(); onClick(agent, 'chat'); }}
               title="Chat" 
               style={{ ...toolBtnStyle, position: 'relative' }}
             >
               <MessageSquare size={16} />
               {agent.hasNotification && (
-                <span style={{
+                <span className="notif-dot" style={{
                   position: 'absolute',
                   top: '-2px',
                   right: '-2px',
