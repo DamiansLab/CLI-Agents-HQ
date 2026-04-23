@@ -6,40 +6,29 @@
 
 
 # 🤖 CLI Agents HQ
+### Secure, Multi-Agent Orchestration & Hybrid AI Dashboard
 
-An interactive, high-fidelity orchestration dashboard for managing multiple Gemini CLI agents. Version 1.5.x introduces a **Secure Hybrid Architecture**, allowing you to host your "Command Center" online while keeping execution safely on your local machine.
-
----
-
-## 🔐 Default Login Credentials
-Upon first deployment, use these credentials to access the dashboard:
-- **Username:** `Admin`
-- **Password:** `admin123`
-- *⚠️ IMPORTANT: Change your password and create your own users in the **👥 USERS** menu immediately after logging in.*
+CLI Agents HQ is a professional management hub for your Gemini CLI agents. It transforms individual terminal interactions into a cohesive, team-based environment, allowing you to coordinate multiple AI specialists from a single, centralized command center.
 
 ---
 
-## 🆕 Changelog v1.5.2 (Complete Branding & Quick-Connect)
-**Release Date: April 23, 2026**
-
-### 🔌 Quick Connect Feature
-- **Instant Setup Guide:** Added a new **🔌 CONNECT** button to the header.
-- **Auto-Discovery:** The guide automatically identifies your dashboard's URL.
-- **Secure Key Access:** Fetches your `CLI_AGENTS_SECRET_KEY` securely from the server for easy copy-pasting into your local terminal.
-
-### 🛡️ Security & Identity
-- **Full Branding:** Complete transition from "GCHQ" to **CLI Agents HQ** across all internal variables, folders, and local storage.
-- **Role-Based Access:** Admins have exclusive access to the **👥 USERS** menu for managing the team.
-- **Verification Bridge:** The local worker now authenticates using a matching `CLI_AGENTS_SECRET_KEY` defined in your Plesk environment.
-
-### 🎨 UI/UX Enhancements
-- **High-Res Visuals:** Updated all logos and favicons to 192x192 and 512x512 resolutions for crisp display on all screens.
-- **Full-Screen Focus:** Maximize chat windows to handle long code blocks with ease.
-- **Notification Sync:** Visual alerts clear automatically across the dashboard when messages are read.
+## 🎯 What the app does
+CLI Agents HQ bridges the gap between powerful AI execution and intuitive team management. It allows you to:
+- **Orchestrate specialized teams:** "Hire" multiple agents and assign them expert roles (Architect, Security Auditor, Test Engineer, etc.) from a library of custom skills.
+- **Hybrid Local Execution:** Securely connect your local terminal to an online dashboard. Your agents have full access to your local project files, while their progress and "Lessons Learned" are synced to the cloud.
+- **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
+- **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
+- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations, saving new insights permanently to their skill files.
 
 ---
 
 ## 🚀 How to Connect & Use
+
+### 🔐 Default Login Credentials
+Upon first deployment, use these credentials to access the dashboard:
+- **Username:** `Admin`
+- **Password:** `admin123`
+- *⚠️ IMPORTANT: Change your password in the **👥 USERS** menu immediately after logging in.*
 
 ### 1. Deploy the HQ (Server)
 1. Upload the `deploy-ready` folder to your Plesk server.
@@ -59,19 +48,23 @@ You can use the pre-bundled **CLI Agents HQ Local** folder, or set it up manuall
 **Option B: Manual Setup**
 1. Create a new folder on your computer.
 2. Copy `agent.js`, `package.json`, and the `skills/` folder into it.
-3. Run `npm install`.
-4. Run `node agent.js` and follow the prompts.
+3. Run `npm install` and `node agent.js`.
 
-### 3. Manage Your Team
-- Hire agents and assign them specialist roles (Architect, Bug Hunter, etc.).
-- The dashboard stores their **XP**, **Levels**, and **Lessons Learned** online, so your team is ready whenever you are.
+**The Handshake:** Follow the interactive prompts to enter your Dashboard URL and the `CLI_AGENTS_SECRET_KEY` you defined on the server.
 
 ---
 
-## 🛠️ Architecture
-- **Backend:** Node.js + Express + Socket.io + JWT (Secure Storage Hub).
-- **Frontend:** React + TypeScript + Vite + Framer Motion.
-- **Local Engine:** Node.js + `gemini-cli` (Terminal Control).
+## 🆕 Changelogs
+
+### v1.5.2 (Complete Branding & Quick-Connect)
+- **Instant Setup:** New **🔌 CONNECT** button provides an auto-generated setup guide.
+- **Branding:** Full transition to **CLI Agents HQ** with high-res logos and assets.
+- **Stability:** Migrated all local machine interactions to high-stability Socket.io tunnels.
+
+### v1.5.1 (Secure Hybrid Mode)
+- **Security:** Integrated JWT-based login system and role-based user management.
+- **Hybrid Logic:** Dashboard stores state online while execution remains strictly local.
+- **UI UX:** Added Full-Screen focus mode and real-time tab notifications.
 
 ---
 *Built for the next generation of secure, collaborative AI development.*
