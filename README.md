@@ -16,7 +16,7 @@ CLI Agents HQ is a professional management hub for your Gemini CLI agents. It tr
 CLI Agents HQ bridges the gap between powerful AI execution and intuitive team management. It allows you to:
 - **Orchestrate specialized teams:** "Hire" multiple agents and assign them expert roles (Architect, Security Auditor, Test Engineer, etc.) from a library of custom skills.
 - **Hybrid Local Execution:** Securely connect your local terminal to an online dashboard. Your agents have full access to your local project files, while their progress and "Lessons Learned" are synced to the cloud.
-- **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
+- **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems. (in progress)
 - **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
 - **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations, saving new insights permanently to their skill files.
 
