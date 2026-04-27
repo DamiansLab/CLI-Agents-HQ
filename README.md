@@ -16,7 +16,7 @@ CLI Agents HQ is a professional management hub for your Gemini CLI agents. It tr
 CLI Agents HQ bridges the gap between powerful AI execution and intuitive team management. It allows you to:
 - **Orchestrate specialized teams:** "Hire" multiple agents and assign them expert roles (Architect, Security Auditor, Test Engineer, etc.) from a library of custom skills.
 - **Hybrid Local Execution:** Securely connect your local terminal to an online dashboard. Your agents have full access to your local project files, while their progress and "Lessons Learned" are synced to the cloud.
-- **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems. (in progress)
+- **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
 - **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
 - **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations, saving new insights permanently to their skill files.
 
@@ -62,11 +62,16 @@ You can use the pre-bundled **CLI Agents HQ Local** folder, or set it up manuall
 
 ## 🆕 Changelogs
 
-### v1.6.0 (Environment Configuration & Security)
-- **Env Support:** Integrated `dotenv` across both Server and Local Agent for seamless configuration.
-- **Security:** Hardened `.gitignore` to prevent accidental commits of secrets (`.env`, `.agent-config.json`).
-- **Templates:** Added `.env.example` files to simplify setup for new users.
-- **Auto-Handshake:** Agents now prioritize `.env` variables to bypass manual terminal prompts.
+### v1.6.0 (Unified Intelligence & Team Sync)
+- **Env Support:** Integrated `dotenv` for seamless configuration via `.env` files.
+- **Conference Room 2.0:** Complete UI redesign with a specialized sidebar and "Shared Memory" logic.
+- **Shared Memory:** Agents in the Conference Room now "hear" each other by receiving the full room history.
+- **Global Brief Integration:** The Project Brief is now automatically attached to every message (Individual & Team).
+- **Interactive Help:** Added "💡 Help" buttons to Brief, Vault, and Conference Room for better onboarding.
+- **Gamified Evolution:** Upgraded XP bars with smooth animations and added "Senior Status" visuals (Gold borders, sparkles, and dual-monitor icons) for Level 3+ agents.
+- **Permanent Learning:** Fixed logic to ensure "Lessons Learned" are physically appended to your local skill markdown files.
+- **Security:** Hardened `.gitignore` and added `.env.example` templates.
+- **Bug Fixes:** Fixed socket relay logic for group messages and manual SEND button sync.
 
 ### v1.5.2 (Complete Branding & Quick-Connect)
 - **Instant Setup:** New **🔌 CONNECT** button provides an auto-generated setup guide.

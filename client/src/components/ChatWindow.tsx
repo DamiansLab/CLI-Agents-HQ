@@ -23,11 +23,12 @@ interface Agent {
 interface ChatWindowProps {
   agent: Agent;
   socket: Socket | null;
+  projectBrief?: string;
   onClose: () => void;
   onUpdateAgent: (id: string, updates: Partial<Agent>) => void;
 }
 
-const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdateAgent }) => {
+const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, projectBrief, onClose, onUpdateAgent }) => {
   const [input, setInput] = useState("");
   const [isReflecting, setIsReflecting] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -106,6 +107,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, onClose, onUpdat
         agentId: agent.id, 
         message: msgText, 
         skillId: agent.skillId,
+        projectBrief,
         directory: agent.workingDirectory 
       });
       setInput("");

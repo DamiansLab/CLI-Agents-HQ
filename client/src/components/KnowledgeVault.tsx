@@ -58,6 +58,11 @@ const KnowledgeVault: React.FC<KnowledgeVaultProps> = ({ items, onClose, onUpdat
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <Database size={20} />
             <h3 style={{ margin: 0 }}>🗄️ Knowledge Vault</h3>
+            <button 
+              onClick={() => alert("💡 HOW TO USE THE VAULT:\n\n1. Store Fragments: Add code snippets, documentation, or specific project logic here.\n2. Organize Intelligence: Give each entry a clear title so you can find it later.\n3. Feed the Agents: When you open an Agent's profile, you can 'Feed' specific entries from the vault directly into their memory.\n\nUnlike the Brief (which is sent to everyone), the Vault allows you to give 'surgical' knowledge to specific agents only when they need it.")}
+              style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', width: '20px', height: '20px', borderRadius: '50%', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              title="Help"
+            >?</button>
           </div>
           <button onClick={onClose} style={closeBtnStyle}>×</button>
         </div>

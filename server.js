@@ -161,6 +161,24 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('group-chat-message', ({ agentIds, message, projectBrief, history }) => {
+    const worker = Array.from(workers.values())[0];
+    if (worker) {
+      agentIds.forEach(agentId => {
+        const agent = [...state.workstations, ...state.breakRoomAgents].find(a => a?.id === agentId);
+        const skillContent = getSkillContent(agent?.skillId);
+        worker.emit('worker-chat-message', { 
+          agentId, 
+          message, 
+          skillId: agent?.skillId, 
+          skillContent, 
+          projectBrief,
+          history // The Sync Team magic
+        });
+      });
+    }
+  });
+
   socket.on('browse-directory', (data) => {
     const worker = Array.from(workers.values())[0];
     if (worker) worker.emit('worker-browse', data);
@@ -190,11 +208,16 @@ io.on('connection', (socket) => {
 });
 
 function updateAgentProgress(agentId, reflection) {
-  // logic to update XP and level...
-  state.workstations = state.workstations.map(a => (a?.id === agentId ? { ...a, xp: (a.xp||0)+100, level: Math.floor(((a.xp||0)+100)/300)+1 } : a));
-  state.breakRoomAgents = state.breakRoomAgents.map(a => (a?.id === agentId ? { ...a, xp: (a.xp||0)+100, level: Math.floor(((a.xp||0)+100)/300)+1 } : a));
+  const agent = [...state.workstations, ...state.breakRoomAgents].find(a => a?.id === agentId);
+  const newXp = (agent?.xp || 0) + 100;
+  const newLevel = Math.floor(newXp / 300) + 1;
+  const updates = { xp: newXp, level: newLevel };
+
+  state.workstations = state.workstations.map(a => (a?.id === agentId ? { ...a, ...updates } : a));
+  state.breakRoomAgents = state.breakRoomAgents.map(a => (a?.id === agentId ? { ...a, ...updates } : a));
+  
   saveState(state);
-  io.emit('agent-xp-update', { agentId, xp: 100 });
+  io.emit('agent-updated', { agentId, updates });
 }
 
 const getSkillContent = (id) => id && fs.existsSync(path.join(skillsDirPath, `${id}.md`)) ? fs.readFileSync(path.join(skillsDirPath, `${id}.md`), 'utf8') : "";

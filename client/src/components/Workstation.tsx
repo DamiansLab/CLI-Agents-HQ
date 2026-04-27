@@ -1,5 +1,6 @@
 import React from 'react';
-import { Folder, Terminal, MessageSquare, Monitor } from 'lucide-react';
+import { Folder, Terminal, MessageSquare, Monitor, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface Agent {
   id: string;
@@ -58,7 +59,7 @@ const Workstation: React.FC<WorkstationProps> = ({ id, agent, onClick }) => {
 
       {agent ? (
         <>
-          {/* Level Badge */}
+          {/* Level Badge - Upgraded */}
           <div style={{
             position: 'absolute',
             top: '35px',
@@ -69,9 +70,13 @@ const Workstation: React.FC<WorkstationProps> = ({ id, agent, onClick }) => {
             padding: '2px 6px',
             borderRadius: '10px',
             fontWeight: 'bold',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.3)'
+            boxShadow: (agent.level || 1) >= 3 ? '0 0 10px rgba(241, 196, 15, 0.4)' : '0 2px 5px rgba(0,0,0,0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '3px'
           }}>
             LVL {agent.level || 1}
+            {(agent.level || 1) >= 3 && <Sparkles size={8} />}
           </div>
 
           {/* Avatar with Pulsing Ring */}
@@ -86,28 +91,39 @@ const Workstation: React.FC<WorkstationProps> = ({ id, agent, onClick }) => {
               justifyContent: 'center',
               borderRadius: '50%',
               background: 'rgba(255,255,255,0.05)',
+              border: (agent.level || 1) >= 3 ? '2px solid #f1c40f' : 'none',
               marginBottom: '12px',
               position: 'relative',
+              boxShadow: (agent.level || 1) >= 3 ? '0 0 15px rgba(241, 196, 15, 0.2)' : 'none'
             }}
           >
             {agent.avatar || "👨‍💼"}
           </div>
 
-          {/* XP Bar */}
+          {/* XP Bar - Upgraded Animated Bar */}
           <div style={{
             width: '100px',
-            height: '4px',
-            background: 'rgba(255,255,255,0.1)',
-            borderRadius: '2px',
+            height: '5px',
+            background: 'rgba(255,255,255,0.05)',
+            borderRadius: '10px',
             marginBottom: '15px',
-            overflow: 'hidden'
-          }}>
-            <div style={{
-              width: `${(agent.xp || 0) % 300 / 3}%`,
-              height: '100%',
-              background: '#3498db',
-              boxShadow: '0 0 10px #3498db'
-            }} />
+            overflow: 'hidden',
+            border: '1px solid rgba(255,255,255,0.05)'
+          }} title={`${agent.xp || 0} XP`}>
+            <motion.div 
+              initial={{ width: 0 }}
+              animate={{ width: `${(agent.xp || 0) % 300 / 3}%` }}
+              transition={{ type: 'spring', stiffness: 40, damping: 15 }}
+              style={{
+                height: '100%',
+                background: (agent.level || 1) >= 3 
+                  ? 'linear-gradient(90deg, #f1c40f, #f39c12)' 
+                  : 'linear-gradient(90deg, #3498db, #2ecc71)',
+                boxShadow: (agent.level || 1) >= 3 
+                  ? '0 0 10px rgba(241, 196, 15, 0.6)' 
+                  : '0 0 10px rgba(52, 152, 219, 0.6)'
+              }} 
+            />
           </div>
 
           <p style={{ 

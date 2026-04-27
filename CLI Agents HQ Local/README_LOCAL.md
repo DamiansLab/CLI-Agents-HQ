@@ -9,19 +9,19 @@ This folder contains everything needed to link this computer to your online Dash
    npm install
    ```
 
-2. **Launch the Engine:**
+2. **Configure (Recommended):** 
+   Create a `.env` file based on `.env.example` and add your `SERVER_URL` and `CLI_AGENTS_SECRET_KEY`. This bypasses manual prompts.
+
+3. **Launch the Engine:**
    ```bash
    node agent.js
    ```
 
-3. **Connect:** 
-   The script will ask for your **Dashboard URL** and **Shared Secret Key**. 
-   You can find these by clicking the **🔌 CONNECT** button on your live website.
-
 ## 📁 What is in this folder?
-- `agent.js`: The bridge between your terminal and the web dashboard.
-- `skills/`: Contains the specialized logic for your agents (required for the Reflect function).
-- `package.json`: Ensures you have the correct connection drivers installed.
+- `agent.js`: The bridge between your terminal and the web dashboard. Supports `.env` and `.agent-config.json`.
+- `skills/`: Specialized logic for your agents (required for the Reflect/Learning function).
+- `package.json`: Contains required drivers (now includes `dotenv`).
+- `.env.example`: Template for your local configuration.
 
 ---
 *Built for the next generation of secure, collaborative AI development.*

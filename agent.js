@@ -80,7 +80,7 @@ async function start() {
     socket.emit('worker-terminal-output', { agentId, data: `[Agent initialized in ${cwd}]\n` });
   });
 
-  socket.on('worker-chat-message', ({ agentId, agentName, message, skillId, skillContent, isSlashCommand, directory }) => {
+  socket.on('worker-chat-message', ({ agentId, agentName, message, skillId, skillContent, projectBrief, history, isSlashCommand, directory }) => {
     let agentData = processes.get(agentId);
     const cwd = directory || agentData?.cwd || process.cwd();
     
@@ -111,9 +111,20 @@ async function start() {
     agentData.proc = proc;
 
     // Construct the prompt
-    const fullPrompt = (skillContent && !isSlashCommand)
-      ? `System Instructions:\n${skillContent}\n\nUser Message:\n${message}`
-      : message;
+    let systemInstructions = skillContent || "";
+    if (projectBrief) {
+      systemInstructions = `Global Project Brief:\n${projectBrief}\n\n${systemInstructions ? `Role Instructions:\n${systemInstructions}` : ""}`;
+    }
+
+    let userMessage = message;
+    if (history && history.length > 0) {
+      const historyText = history.map(m => `[${m.sender}]: ${m.text}`).join('\n');
+      userMessage = `Conference Room History:\n${historyText}\n\nUser Message (New):\n${message}`;
+    }
+
+    const fullPrompt = (systemInstructions && !isSlashCommand)
+      ? `System Instructions:\n${systemInstructions.trim()}\n\nUser Message:\n${userMessage}`
+      : userMessage;
     
     // Write the prompt to stdin and then a newline to "enter" it.
     proc.stdin.write(fullPrompt + '\n');
@@ -262,7 +273,15 @@ async function start() {
     proc.stdout.on('data', (data) => { reflection += data.toString(); });
     proc.on('close', (code) => {
       if (code === 0 && reflection.trim()) {
-        socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId });
+        // PERMANENT LEARNING: Append the reflection to the skill file
+        const timestamp = new Date().toLocaleDateString();
+        const learningEntry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection.trim()}\n`;
+        try {
+          fs.appendFileSync(filePath, learningEntry);
+          socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId });
+        } catch (err) {
+          socket.emit('worker-reflect-response', { requestId, error: "Failed to save learning: " + err.message, agentId });
+        }
       } else {
         socket.emit('worker-reflect-response', { requestId, error: "Reflection failed", agentId });
       }

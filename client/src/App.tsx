@@ -527,36 +527,156 @@ function App() {
 
       {showCollaboration && (
         <div className="glass-modal" style={modalOverlayStyle} onClick={() => setShowCollaboration(false)}>
-          <div style={{ ...modalContentStyle, width: '800px', height: '600px' }} onClick={e => e.stopPropagation()}>
-            <div style={{ ...modalHeaderStyle, backgroundColor: '#2ecc71' }}>
-              <h3 style={{ margin: 0 }}>🤝 Team Collaboration</h3>
+          <div style={{ ...modalContentStyle, width: '900px', height: '800px', backgroundColor: '#0f111a', border: '1px solid rgba(46, 204, 113, 0.3)' }} onClick={e => e.stopPropagation()}>
+            <div style={{ ...modalHeaderStyle, backgroundColor: '#2ecc71', padding: '15px 25px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                <h3 style={{ margin: 0, fontSize: '20px' }}>🤝 Conference Room</h3>
+                <button 
+                  onClick={() => alert("👨‍⚖️ MODERATOR GUIDANCE:\n\n1. Multi-Agent Context: All invited agents see the FULL history of this room. When one speaks, the others hear them in the next turn.\n2. Debate Mode: To make them discuss, use prompts like: '@Alice, what do you think of Bob's idea?'\n3. Conflict Resolution: If they disagree, ask for a 'consensus' or 'middle ground'.\n4. Efficiency: Use 'CLEAR ALL' before starting a completely new topic to keep their memory focused.")}
+                  style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', width: '20px', height: '20px', borderRadius: '50%', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Moderator Help"
+                >?</button>
+                <button 
+                  onClick={() => { if(window.confirm("Clear all messages and uninvite all agents?")) { setGroupChatHistory([]); setCollabAgents([]); } }}
+                  style={{ background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', padding: '5px 12px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}
+                >🗑️ CLEAR ALL</button>
+              </div>
               <button onClick={() => setShowCollaboration(false)} style={closeBtnStyle}>×</button>
             </div>
-            <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '11px', color: '#666', marginBottom: '10px' }}>INVITE SPECIALISTS:</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {workstations.filter(a => a !== null).map(a => (
+            
+            <div style={{ display: 'flex', flexGrow: 1, overflow: 'hidden' }}>
+              {/* Sidebar: Invited Agents */}
+              <div style={{ width: '220px', background: 'rgba(0,0,0,0.2)', borderRight: '1px solid rgba(255,255,255,0.05)', padding: '20px', display: 'flex', flexDirection: 'column' }}>
+                <label style={{ display: 'block', fontSize: '10px', color: 'rgba(255,255,255,0.4)', letterSpacing: '1px', marginBottom: '15px', fontWeight: 'bold' }}>INVITED SPECIALISTS</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flexGrow: 1, overflowY: 'auto' }}>
+                  {[...workstations, ...breakRoomAgents].filter(a => a !== null).map(a => (
                     <div key={a!.id} onClick={() => collabAgents.includes(a!.id) ? setCollabAgents(collabAgents.filter(id => id !== a!.id)) : setCollabAgents([...collabAgents, a!.id])}
-                      style={{ padding: '8px 15px', borderRadius: '20px', fontSize: '12px', cursor: 'pointer', background: collabAgents.includes(a!.id) ? '#2ecc71' : '#f0f0f0', color: collabAgents.includes(a!.id) ? '#fff' : '#666', border: '1px solid #ddd' }}>
-                      {a!.avatar} {a!.name}
+                      style={{ 
+                        padding: '10px 15px', 
+                        borderRadius: '8px', 
+                        fontSize: '13px', 
+                        cursor: 'pointer', 
+                        background: collabAgents.includes(a!.id) ? 'rgba(46, 204, 113, 0.2)' : 'rgba(255,255,255,0.03)', 
+                        color: collabAgents.includes(a!.id) ? '#2ecc71' : 'rgba(255,255,255,0.6)', 
+                        border: `1px solid ${collabAgents.includes(a!.id) ? '#2ecc71' : 'rgba(255,255,255,0.05)'}`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                        transition: 'all 0.2s'
+                      }}>
+                      <span style={{ fontSize: '18px' }}>{a!.avatar}</span>
+                      <span style={{ fontWeight: collabAgents.includes(a!.id) ? 'bold' : 'normal', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{a!.name.split(' #')[0]}</span>
                     </div>
                   ))}
                 </div>
-              </div>
-
-              <div style={{ flexGrow: 1, background: '#0a0b14', borderRadius: '12px', padding: '20px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {groupChatHistory.map((m, i) => (
-                  <div key={i} style={{ padding: '12px 16px', borderRadius: m.sender === 'user' ? '15px 15px 2px 15px' : '15px 15px 15px 2px', backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.05)', alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%', color: '#fff', fontSize: '13px', boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }}>
-                    <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
-                    <div style={{ fontSize: '9px', opacity: 0.5, textAlign: 'right', marginTop: '5px' }}>{m.timestamp}</div>
+                {collabAgents.length === 0 && (
+                  <div style={{ marginTop: '15px', padding: '10px', borderRadius: '8px', background: 'rgba(241, 196, 15, 0.1)', color: '#f1c40f', fontSize: '11px', textAlign: 'center' }}>
+                    ⚠️ Invite agents to start brainstorming!
                   </div>
-                ))}
+                )}
               </div>
 
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <input value={collabInput} onChange={e => setCollabInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { if (collabAgents.length === 0) return alert("Invite at least one agent!"); setGroupChatHistory(prev => [...prev, { sender: 'user', text: collabInput, timestamp: new Date().toLocaleTimeString() }]); socketRef.current?.emit('group-chat-message', { agentIds: collabAgents, message: collabInput, projectBrief: globalContext }); setCollabInput(""); } }} placeholder="Ask the team a question..." style={{ flexGrow: 1, padding: '12px 20px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '30px', color: '#fff', outline: 'none' }} />
-                <button onClick={() => { if (collabAgents.length === 0) return alert("Invite at least one agent!"); setGroupChatHistory(prev => [...prev, { sender: 'user', text: collabInput, timestamp: new Date().toLocaleTimeString() }]); socketRef.current?.emit('group-chat-message', { agentIds: collabAgents, message: collabInput, projectBrief: globalContext }); setCollabInput(""); }} style={{ ...primaryBtnStyle, backgroundColor: '#2ecc71', padding: '10px 25px', borderRadius: '30px' }}>Send to Team</button>
+              {/* Main Chat Area */}
+              <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', padding: '25px', background: 'rgba(0,0,0,0.1)' }}>
+                <div style={{ flexGrow: 1, background: 'rgba(0,0,0,0.2)', borderRadius: '15px', padding: '25px', overflowY: 'auto', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                  {groupChatHistory.length === 0 ? (
+                    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.2 }}>
+                      <span style={{ fontSize: '50px' }}>💬</span>
+                      <p>Conference history is empty.</p>
+                    </div>
+                  ) : (
+                    groupChatHistory.map((m, i) => {
+                      const senderAgent = [...workstations, ...breakRoomAgents].find(a => a?.name === m.sender || a?.id === m.sender);
+                      return (
+                        <div key={i} style={{ 
+                          display: 'flex', 
+                          flexDirection: 'column',
+                          alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
+                          maxWidth: '85%'
+                        }}>
+                          {m.sender !== 'user' && (
+                            <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '4px', marginLeft: '12px' }}>
+                              {senderAgent?.avatar} {m.sender}
+                            </span>
+                          )}
+                          <div style={{ 
+                            padding: '14px 18px', 
+                            borderRadius: m.sender === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px', 
+                            backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.07)', 
+                            color: '#fff', 
+                            fontSize: '14px',
+                            lineHeight: '1.5',
+                            boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+                            border: m.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)'
+                          }}>
+                            <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
+                            <div style={{ fontSize: '10px', opacity: 0.4, textAlign: 'right', marginTop: '8px' }}>{m.timestamp}</div>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <textarea 
+                    value={collabInput} 
+                    onChange={e => setCollabInput(e.target.value)} 
+                    onKeyDown={e => { 
+                      if (e.key === 'Enter' && !e.shiftKey) { 
+                        e.preventDefault();
+                        if (collabAgents.length === 0) return alert("Invite at least one agent!"); 
+                        if (!collabInput.trim()) return;
+                        setGroupChatHistory(prev => [...prev, { sender: 'user', text: collabInput, timestamp: new Date().toLocaleTimeString() }]); 
+                        socketRef.current?.emit('group-chat-message', { 
+                          agentIds: collabAgents, 
+                          message: collabInput, 
+                          projectBrief: globalContext,
+                          history: groupChatHistory 
+                        }); 
+                        setCollabInput(""); 
+                      } 
+                    }} 
+                    placeholder={collabAgents.length > 0 ? "Message the team..." : "Invite agents to enable chat..."}
+                    disabled={collabAgents.length === 0}
+                    style={{ 
+                      flexGrow: 1, 
+                      padding: '15px 20px', 
+                      background: 'rgba(255,255,255,0.05)', 
+                      border: '1px solid rgba(255,255,255,0.1)', 
+                      borderRadius: '12px', 
+                      color: '#fff', 
+                      outline: 'none',
+                      fontSize: '14px',
+                      resize: 'none',
+                      height: '54px',
+                      fontFamily: 'inherit'
+                    }} 
+                  />
+                  <button 
+                    onClick={() => { 
+                      if (collabAgents.length === 0) return alert("Invite at least one agent!"); 
+                      if (!collabInput.trim()) return;
+                      setGroupChatHistory(prev => [...prev, { sender: 'user', text: collabInput, timestamp: new Date().toLocaleTimeString() }]); 
+                      socketRef.current?.emit('group-chat-message', { 
+                        agentIds: collabAgents, 
+                        message: collabInput, 
+                        projectBrief: globalContext,
+                        history: groupChatHistory 
+                      }); 
+                      setCollabInput(""); 
+                    }} 
+                    disabled={collabAgents.length === 0}
+                    style={{ 
+                      ...primaryBtnStyle, 
+                      backgroundColor: '#2ecc71', 
+                      height: '54px',
+                      width: '100px',
+                      borderRadius: '12px',
+                      opacity: collabAgents.length === 0 ? 0.5 : 1
+                    }}
+                  >SEND</button>
+                </div>
               </div>
             </div>
           </div>
@@ -567,14 +687,24 @@ function App() {
         {activeChats.map(agentId => {
           const agent = workstations.find(a => a?.id === agentId) || breakRoomAgents.find(a => a.id === agentId);
           if (!agent) return null;
-          return <div key={agentId} style={{ pointerEvents: 'auto' }}><ChatWindow agent={agent} socket={socketRef.current} onClose={() => closeChat(agentId)} onUpdateAgent={updateAgent} /></div>;
+          return <div key={agentId} style={{ pointerEvents: 'auto' }}><ChatWindow agent={agent} socket={socketRef.current} onClose={() => closeChat(agentId)} onUpdateAgent={updateAgent} projectBrief={globalContext} /></div>;
         })}
       </div>
 
       {showNoticeBoard && (
         <div className="glass-modal" style={modalOverlayStyle} onClick={() => setShowNoticeBoard(false)}>
           <div style={modalContentStyle} onClick={e => e.stopPropagation()}>
-            <div style={{ ...modalHeaderStyle, backgroundColor: '#3f51b5' }}><h3 style={{ margin: 0 }}>📋 Global Project Brief</h3><button onClick={() => setShowNoticeBoard(false)} style={closeBtnStyle}>×</button></div>
+            <div style={{ ...modalHeaderStyle, backgroundColor: '#3f51b5' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <h3 style={{ margin: 0 }}>📋 Global Project Brief</h3>
+                <button 
+                  onClick={() => alert("💡 HOW TO USE THE BRIEF:\n\n1. Define your Tech Stack (e.g., 'Use React + Tailwind')\n2. Set Project Rules (e.g., 'Always use TypeScript')\n3. Describe the Goal (e.g., 'We are building an e-commerce dashboard')\n\nThis brief is automatically attached to every message you send to ANY agent, ensuring they all follow the same global rules.")}
+                  style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: '#fff', width: '20px', height: '20px', borderRadius: '50%', fontSize: '12px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                  title="Help"
+                >?</button>
+              </div>
+              <button onClick={() => setShowNoticeBoard(false)} style={closeBtnStyle}>×</button>
+            </div>
             <div style={{ padding: '20px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
               <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '14px', marginBottom: '15px' }}>This brief is automatically sent to every agent you chat with. Use it to define project rules, tech stack, and goals.</p>
               <textarea value={globalContext} onChange={(e) => setGlobalContext(e.target.value)} placeholder="e.g. We are building a React application..." style={{ flexGrow: 1, padding: '15px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.2)', color: '#fff', fontSize: '15px', lineHeight: '1.5', resize: 'none', outline: 'none', fontFamily: 'inherit' }} />
@@ -591,6 +721,7 @@ function App() {
           initialView={selectedAgent.view} 
           socket={socketRef.current} 
           knowledgeVault={knowledgeVault} 
+          projectBrief={globalContext}
           authToken={authToken || ''} 
           onClose={() => setSelectedAgent(null)} 
           onFire={handleFire} 

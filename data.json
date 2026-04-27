@@ -9,18 +9,8 @@
       "chatHistory": [],
       "xp": 0,
       "level": 1,
-      "terminalHistory": [
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
-        "Warning: 256-color support not detected. Using a terminal with at least 256-color support is recommended for a better visual experience.\n",
-        "I see one folder in the root directory:\n\n*   ",
-        "`skills\\` (which contains several Markdown files for different agent roles).",
-        "\n"
-      ]
+      "terminalHistory": [],
+      "workingDirectory": "C:\\"
     },
     null,
     null,
@@ -33,7 +23,20 @@
     null
   ],
   "breakRoomAgents": [],
-  "logs": [],
+  "logs": [
+    {
+      "id": "exvebaamy",
+      "timestamp": "12:28:33 μ.μ.",
+      "message": "Alice #498 is now working in: C:\\",
+      "type": "info"
+    },
+    {
+      "id": "kbm5k7yhe",
+      "timestamp": "12:28:33 μ.μ.",
+      "message": "Alice #498 is now working in: C:\\",
+      "type": "info"
+    }
+  ],
   "globalContext": "",
   "knowledgeVault": []
 }

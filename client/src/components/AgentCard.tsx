@@ -31,6 +31,7 @@ interface AgentCardProps {
   location: 'workstation' | 'break';
   socket: Socket | null;
   knowledgeVault?: VaultItem[];
+  projectBrief?: string;
   authToken: string;
   onClose: () => void;
   onFire: (id: string) => void;
@@ -53,6 +54,7 @@ const AgentCard: React.FC<AgentCardProps> = ({
   location, 
   socket,
   knowledgeVault,
+  projectBrief,
   authToken,
   onClose, 
   onFire, 
@@ -171,7 +173,13 @@ const AgentCard: React.FC<AgentCardProps> = ({
       onUpdateAgent(agent.id, {
         chatHistory: [...chatMessages, { sender: 'user', text: msg, timestamp: new Date().toLocaleTimeString() }]
       });
-      socket.emit('chat-message', { agentId: agent.id, message: msg, skillId: agent.skillId, directory: agent.workingDirectory });
+      socket.emit('chat-message', { 
+        agentId: agent.id, 
+        message: msg, 
+        skillId: agent.skillId, 
+        projectBrief,
+        directory: agent.workingDirectory 
+      });
       setChatInput("");
     }
   };
