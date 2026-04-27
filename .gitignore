@@ -3,8 +3,22 @@ node_modules
 /.pnp
 .pnp.js
 
+# build
 deploy-ready
-
 dist
+
+# secrets and config
+.env
+.env.local
+.agent-config.json
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
 
 

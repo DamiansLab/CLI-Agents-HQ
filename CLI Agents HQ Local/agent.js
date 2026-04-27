@@ -1,3 +1,4 @@
+require('dotenv').config();
 const { io } = require('socket.io-client');
 const { spawn } = require('child_process');
 const fs = require('fs');

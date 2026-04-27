@@ -11,7 +11,15 @@
       "level": 1,
       "terminalHistory": [
         "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
-        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n"
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ]\n",
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
+        "[Agent initialized in C:\\Users\\nikif\\Documents\\CLI Agents HQ\\CLI Agents HQ Local]\n",
+        "Warning: 256-color support not detected. Using a terminal with at least 256-color support is recommended for a better visual experience.\n",
+        "I see one folder in the root directory:\n\n*   ",
+        "`skills\\` (which contains several Markdown files for different agent roles).",
+        "\n"
       ]
     },
     null,
@@ -25,38 +33,7 @@
     null
   ],
   "breakRoomAgents": [],
-  "logs": [
-    {
-      "id": "2552a6cqr",
-      "timestamp": "1:26:11 μ.μ.",
-      "message": "Julia #391 was terminated from the team.",
-      "type": "warning"
-    },
-    {
-      "id": "i4il72mbs",
-      "timestamp": "1:41:00 μ.μ.",
-      "message": "Hired Alice #498 at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "this3f650",
-      "timestamp": "1:41:00 μ.μ.",
-      "message": "Hired Alice #498 at Station 1.",
-      "type": "success"
-    },
-    {
-      "id": "065biygea",
-      "timestamp": "1:42:28 μ.μ.",
-      "message": "Verified Local Agent connected.",
-      "type": "info"
-    },
-    {
-      "id": "1rqz0is4d",
-      "timestamp": "1:42:49 μ.μ.",
-      "message": "Local Agent disconnected.",
-      "type": "error"
-    }
-  ],
+  "logs": [],
   "globalContext": "",
   "knowledgeVault": []
 }
