@@ -39,28 +39,34 @@ Upon first deployment, use these credentials to access the dashboard:
 ### 1. Deploy the HQ (Server)
 1. Upload the `deploy-ready` folder to your Plesk server.
 2. In Plesk Node.js settings, set `entry.js` as the startup file.
-3. Add these **Environment Variables** in Plesk:
+3. **Configuration:** You can set Environment Variables in Plesk or create a `.env` file in the root:
    - `CLI_AGENTS_SECRET_KEY`: A strong secret for the local machine "handshake".
    - `JWT_SECRET`: A random string used to secure user login sessions.
+   - `PORT`: (Optional) The port the server will run on (default: 5500).
 4. Run **NPM Install** and **Restart**.
 
 ### 2. Connect the Engine (Local)
-You can use the pre-bundled **CLI Agents HQ Local** folder, or set it up manually:
+You can use the pre-bundled **CLI Agents HQ Local** folder, or set it up manually.
 
-**Option A: Automated (Recommended)**
+**Using .env (New & Recommended)**
+1. Create a `.env` file in your local folder (see `.env.example`).
+2. Add your `SERVER_URL` and `CLI_AGENTS_SECRET_KEY`.
+3. Run `node agent.js` to connect instantly.
+
+**Option A: Automated (Legacy)**
 1. Copy the `CLI Agents HQ Local` folder to your computer.
 2. Run `npm install` and `node agent.js`.
-
-**Option B: Manual Setup**
-1. Create a new folder on your computer.
-2. Copy `agent.js`, `package.json`, and the `skills/` folder into it.
-3. Run `npm install` and `node agent.js`.
-
-**The Handshake:** Follow the interactive prompts to enter your Dashboard URL and the `CLI_AGENTS_SECRET_KEY` you defined on the server.
+3. Follow the interactive prompts to enter your URL and Secret.
 
 ---
 
 ## 🆕 Changelogs
+
+### v1.6.0 (Environment Configuration & Security)
+- **Env Support:** Integrated `dotenv` across both Server and Local Agent for seamless configuration.
+- **Security:** Hardened `.gitignore` to prevent accidental commits of secrets (`.env`, `.agent-config.json`).
+- **Templates:** Added `.env.example` files to simplify setup for new users.
+- **Auto-Handshake:** Agents now prioritize `.env` variables to bypass manual terminal prompts.
 
 ### v1.5.2 (Complete Branding & Quick-Connect)
 - **Instant Setup:** New **🔌 CONNECT** button provides an auto-generated setup guide.
