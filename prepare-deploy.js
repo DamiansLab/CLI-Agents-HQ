@@ -48,8 +48,7 @@ async function prepare() {
     // 6. Create Local Machine Package
     console.log('📦 Creating Local Machine Package...');
     const localPackageDir = path.join(rootDir, 'CLI Agents HQ Local');
-    if (fs.existsSync(localPackageDir)) fs.removeSync(localPackageDir);
-    fs.ensureDirSync(localPackageDir);
+    fs.emptyDirSync(localPackageDir);
 
     const localFiles = ['agent.js', 'package.json', 'package-lock.json', 'skills', '.env.example'];
     localFiles.forEach(file => {
