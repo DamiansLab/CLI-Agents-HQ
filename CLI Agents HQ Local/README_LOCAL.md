@@ -19,8 +19,8 @@ This folder contains everything needed to link this computer to your online Dash
 
 ## 📁 What is in this folder?
 - `agent.js`: The bridge between your terminal and the web dashboard. Supports `.env` and `.agent-config.json`.
-- `skills/`: Specialized logic for your agents (required for the Reflect/Learning function).
-- `package.json`: Contains required drivers (now includes `dotenv`).
+- `skills/`: Contains the specialized logic for your agents (required for the Reflect/Learning function).
+- `package.json`: Ensures you have the correct connection drivers installed (now including `dotenv`).
 - `.env.example`: Template for your local configuration.
 
 ---

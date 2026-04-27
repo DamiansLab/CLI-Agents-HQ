@@ -105,7 +105,7 @@ async function start() {
     const proc = spawn('gemini', [], { 
       cwd: agentData.cwd, 
       shell: true,
-      env: { ...process.env, FORCE_COLOR: "1" }
+      env: { ...process.env, FORCE_COLOR: "3", TERM: "xterm-256color" }
     });
 
     agentData.proc = proc;
@@ -128,10 +128,12 @@ async function start() {
     
     // Write the prompt to stdin and then a newline to "enter" it.
     proc.stdin.write(fullPrompt + '\n');
+    proc.stdin.end();
 
     let output = '';
     proc.stdout.on('data', (data) => {
       const text = data.toString();
+      if (text.includes("256-color support not detected")) return;
       output += text;
       socket.emit('worker-terminal-output', { agentId, data: text });
 
@@ -154,7 +156,9 @@ async function start() {
     });
 
     proc.stderr.on('data', (data) => {
-      socket.emit('worker-terminal-output', { agentId, data: data.toString(), type: 'error' });
+      const text = data.toString();
+      if (text.includes("256-color support not detected")) return;
+      socket.emit('worker-terminal-output', { agentId, data: text, type: 'error' });
     });
 
     proc.on('close', (code) => {
@@ -193,7 +197,7 @@ async function start() {
       ? `chcp 65001 > nul && gemini ${finalArgs}`
       : `chcp 65001 > nul && gemini "${input.replace(/"/g, '\\"')}"`;
 
-    const proc = spawn(finalSpawnCmd, [], { cwd, shell: true, env: { ...process.env, FORCE_COLOR: "1" } });
+    const proc = spawn(finalSpawnCmd, [], { cwd, shell: true, env: { ...process.env, FORCE_COLOR: "3", TERM: "xterm-256color" } });
     agentData.proc = proc;
 
     proc.stdout.on('data', (data) => socket.emit('worker-terminal-output', { agentId, data: data.toString() }));
@@ -268,7 +272,7 @@ async function start() {
 
     console.log(`[REFLECTING] Agent ${agentId} learning for skill ${skillId}...`);
 
-    const proc = spawn('gemini', [`"${reflectionPrompt.replace(/"/g, '\\"')}"`], { shell: true });
+    const proc = spawn('gemini', [`"${reflectionPrompt.replace(/"/g, '\\"')}"`], { shell: true, env: { ...process.env, FORCE_COLOR: "3", TERM: "xterm-256color" } });
     let reflection = '';
     proc.stdout.on('data', (data) => { reflection += data.toString(); });
     proc.on('close', (code) => {
