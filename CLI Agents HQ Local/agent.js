@@ -11,6 +11,31 @@ let SECRET_KEY = process.env.CLI_AGENTS_SECRET_KEY;
 // Global state map for tracking active processes
 const processes = new Map(); // agentId -> { proc, cwd, lastPromptTime }
 
+const THEME = {
+  reset: "\x1b[0m",
+  bright: "\x1b[1m",
+  dim: "\x1b[2m",
+  blue: "\x1b[34m",
+  cyan: "\x1b[36m",
+  green: "\x1b[32m",
+  yellow: "\x1b[33m",
+  red: "\x1b[31m",
+  magenta: "\x1b[35m",
+  divider: "─────────────────────────────────────────────────"
+};
+
+const log = {
+  info: (msg) => console.log(`${THEME.cyan}ℹ${THEME.reset} ${msg}`),
+  success: (msg) => console.log(`${THEME.green}✔${THEME.reset} ${msg}`),
+  warn: (msg) => console.log(`${THEME.yellow}⚠${THEME.reset} ${msg}`),
+  error: (msg) => console.error(`${THEME.red}✘${THEME.reset} ${msg}`),
+  banner: () => {
+    console.log(`\n${THEME.blue}${THEME.bright}${THEME.divider}`);
+    console.log(` 🤖 CLI AGENTS HQ : SECURE LOCAL CONNECTOR`);
+    console.log(`${THEME.divider}${THEME.reset}`);
+  }
+};
+
 async function start() {
   const configPath = path.join(__dirname, '.agent-config.json');
   let savedConfig = { lastUrl: '', lastSecret: '' };
@@ -21,23 +46,23 @@ async function start() {
 
   if (!SERVER_URL || !SECRET_KEY) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    console.log('\n--- 🤖 CLI Agents HQ: Secure Local Connector ---');
+    log.banner();
 
     if (!SERVER_URL) {
       const prompt = savedConfig.lastUrl ? `Enter Dashboard URL [Default: ${savedConfig.lastUrl}]: ` : 'Enter Dashboard URL: ';
-      const answer = await new Promise(res => rl.question(prompt, res));
+      const answer = await new Promise(res => rl.question(`${THEME.cyan}▶${THEME.reset} ${prompt}`, res));
       SERVER_URL = answer.trim() || savedConfig.lastUrl;
     }
 
     if (!SECRET_KEY) {
       const prompt = savedConfig.lastSecret ? `Enter Shared Secret Key [Default: ****]: ` : 'Enter Shared Secret Key: ';
-      const answer = await new Promise(res => rl.question(prompt, res));
+      const answer = await new Promise(res => rl.question(`${THEME.cyan}▶${THEME.reset} ${prompt}`, res));
       SECRET_KEY = answer.trim() || savedConfig.lastSecret;
     }
     rl.close();
 
     if (!SERVER_URL || !SECRET_KEY) {
-      console.error('❌ Error: URL and Secret Key are required.');
+      log.error('URL and Secret Key are required.');
       process.exit(1);
     }
 
@@ -51,31 +76,31 @@ async function start() {
   });
 
   socket.on('connect', () => {
-    console.log('✅ Connected to Dashboard. Authenticating...');
+    log.success('Connected to Dashboard. Authenticating...');
     socket.emit('register-worker', { secret: SECRET_KEY });
   });
 
   socket.on('connect_error', (err) => {
-    console.error(`\n❌ Connection Error: ${err.message}`);
+    log.error(`Connection Error: ${err.message}`);
     if (err.message.includes('xhr poll error')) {
-      console.log('👉 Hint: This usually means the server URL is wrong or the server is down.');
+      console.log(`${THEME.dim} 👉 Hint: This usually means the server URL is wrong or the server is down.${THEME.reset}`);
     } else if (err.message.includes('websocket error')) {
-      console.log('👉 Hint: The server is active, but your Proxy (Nginx/Plesk) is blocking WebSockets.');
+      console.log(`${THEME.dim} 👉 Hint: The server is active, but your Proxy (Nginx/Plesk) is blocking WebSockets.${THEME.reset}`);
     }
   });
 
   socket.on('auth-error', (data) => {
-    console.error(`\n❌ Authentication Failed: ${data.message}`);
+    log.error(`Authentication Failed: ${data.message}`);
     process.exit(1);
   });
 
   socket.on('disconnect', () => {
-    console.log('Disconnected from Dashboard server');
+    log.warn('Disconnected from Dashboard server');
   });
 
   socket.on('worker-start-terminal', ({ agentId, agentName, directory }) => {
     const cwd = directory || process.cwd();
-    console.log(`Initializing agent ${agentName || agentId} in ${cwd}`);
+    log.info(`Initializing agent ${THEME.bright}${agentName || agentId}${THEME.reset} in ${THEME.dim}${cwd}${THEME.reset}`);
     processes.set(agentId, { proc: null, cwd });
     socket.emit('worker-terminal-output', { agentId, data: `[Agent initialized in ${cwd}]\n` });
   });
@@ -92,13 +117,13 @@ async function start() {
     if (directory) agentData.cwd = directory;
     
     if (agentData.proc) {
-      console.log(`[USER INPUT -> ${agentName || agentId}] ${message}`);
+      log.info(`${THEME.bright}${agentName || agentId}${THEME.reset} ${THEME.dim}Receiving Input...${THEME.reset}`);
       agentData.proc.stdin.write(message + '\n');
       socket.emit('worker-terminal-output', { agentId, data: `\n[Input] > ${message}\n` });
       return;
     }
 
-    console.log(`[USER -> ${agentName || agentId}] ${message} (Skill: ${skillId || 'none'})`);
+    log.info(`${THEME.bright}${agentName || agentId}${THEME.reset} ${THEME.dim}Thinking... (Skill: ${skillId || 'none'})${THEME.reset}`);
     socket.emit('worker-agent-status', { agentId, status: 'thinking' });
     
     // On Windows, 'gemini' is usually 'gemini.cmd'. shell: true finds it and handles stdin piping correctly.
