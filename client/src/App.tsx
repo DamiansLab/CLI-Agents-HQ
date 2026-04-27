@@ -12,7 +12,7 @@ import UserManagement from './components/UserManagement'
 import ConnectionGuide from './components/ConnectionGuide'
 
 interface ChatMessage {
-  sender: 'user' | 'agent';
+  sender: 'user' | 'agent' | string;
   text: string;
   timestamp: string;
 }
@@ -117,6 +117,9 @@ function App() {
   const [showConnectionGuide, setShowConnectionGuide] = useState(false);
   const [showCollaboration, setShowCollaboration] = useState(false);
   const [collabAgents, setCollabAgents] = useState<string[]>([]);
+  const collabAgentsRef = useRef(collabAgents);
+  useEffect(() => { collabAgentsRef.current = collabAgents; }, [collabAgents]);
+
   const [collabInput, setCollabInput] = useState("");
   const [globalContext, setGlobalContext] = useState("");
   const [knowledgeVault, setKnowledgeVault] = useState<VaultItem[]>([]);
@@ -201,6 +204,15 @@ function App() {
 
       const agent = [...workstationsRef.current, ...breakRoomAgentsRef.current].find(a => a?.id === agentId);
       const agentName = agent?.name || `Agent ${agentId.substr(0,4)}`;
+
+      // Update Group Chat if in collaboration
+      if (collabAgentsRef.current.includes(agentId)) {
+        setGroupChatHistory(prev => [...prev, {
+          sender: agentName,
+          text,
+          timestamp: new Date().toLocaleTimeString()
+        }]);
+      }
 
       // Update workstations and clear notification if chat is visible
       setWorkstations(prev => prev.map(a => {
@@ -602,12 +614,13 @@ function App() {
                           <div style={{ 
                             padding: '14px 18px', 
                             borderRadius: m.sender === 'user' ? '18px 18px 2px 18px' : '18px 18px 18px 2px', 
-                            backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.07)', 
+                            backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(30,30,30,0.75)', 
+                            backdropFilter: 'blur(8px)',
                             color: '#fff', 
                             fontSize: '14px',
                             lineHeight: '1.5',
                             boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
-                            border: m.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.05)'
+                            border: m.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.1)'
                           }}>
                             <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
                             <div style={{ fontSize: '10px', opacity: 0.4, textAlign: 'right', marginTop: '8px' }}>{m.timestamp}</div>

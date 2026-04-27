@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { X, Send, Trash2, RotateCcw, StopCircle, Sparkles, Maximize2, Minimize2 } from 'lucide-react';
 
 interface ChatMessage {
-  sender: 'user' | 'agent';
+  sender: 'user' | 'agent' | string;
   text: string;
   timestamp: string;
 }
@@ -171,10 +171,12 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, projectBrief, on
             ...bubbleStyle,
             maxWidth: isFullScreen ? '70%' : '85%',
             alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start',
-            background: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.08)',
+            background: m.sender === 'user' ? '#3498db' : 'rgba(30,30,30,0.75)',
+            backdropFilter: 'blur(8px)',
             color: '#fff',
             borderRadius: m.sender === 'user' ? '15px 15px 2px 15px' : '15px 15px 15px 2px',
-            fontSize: isFullScreen ? '15px' : '13px'
+            fontSize: isFullScreen ? '15px' : '13px',
+            border: m.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.1)'
           }}>
             <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
             <div style={{ fontSize: '9px', opacity: 0.5, marginTop: '5px', textAlign: 'right' }}>{m.timestamp}</div>
@@ -229,7 +231,8 @@ const statusDotStyle = (status?: string): React.CSSProperties => ({
 });
 
 const messagesContainerStyle: React.CSSProperties = {
-  flexGrow: 1, padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px'
+  flexGrow: 1, padding: '15px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px',
+  background: 'rgba(15, 15, 20, 0.6)', backdropFilter: 'blur(10px)'
 };
 
 const bubbleStyle: React.CSSProperties = {

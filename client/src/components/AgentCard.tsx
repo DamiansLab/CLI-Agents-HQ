@@ -42,7 +42,7 @@ interface AgentCardProps {
 }
 
 interface ChatMessage {
-  sender: 'user' | 'agent';
+  sender: 'user' | 'agent' | string;
   text: string;
   timestamp: string;
 }
@@ -246,9 +246,20 @@ const AgentCard: React.FC<AgentCardProps> = ({
                   <Sparkles size={14}/> {isReflecting ? "LEARNING..." : "REFLECT"}
                 </button>
               </div>
-              <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: '15px', padding: '10px', background: 'rgba(0,0,0,0.1)', borderRadius: '8px' }}>
+              <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: '15px', padding: '10px', background: 'rgba(15, 15, 20, 0.7)', backdropFilter: 'blur(10px)', borderRadius: '8px' }}>
                 {chatMessages.map((m, i) => (
-                  <div key={i} style={{ alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(255,255,255,0.1)', padding: '10px 15px', borderRadius: '12px', marginBottom: '10px', maxWidth: '85%', marginLeft: m.sender === 'user' ? 'auto' : '0', fontSize: '14px', }}>
+                  <div key={i} style={{ 
+                    alignSelf: m.sender === 'user' ? 'flex-end' : 'flex-start', 
+                    backgroundColor: m.sender === 'user' ? '#3498db' : 'rgba(30,30,30,0.75)', 
+                    backdropFilter: 'blur(8px)',
+                    border: m.sender === 'user' ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    padding: '10px 15px', 
+                    borderRadius: '12px', 
+                    marginBottom: '10px', 
+                    maxWidth: '85%', 
+                    marginLeft: m.sender === 'user' ? 'auto' : '0', 
+                    fontSize: '14px', 
+                  }}>
                     <div style={{ whiteSpace: 'pre-wrap' }}>{m.text}</div>
                     <div style={{ fontSize: '10px', opacity: 0.5, textAlign: 'right', marginTop: '5px' }}>{m.timestamp}</div>
                   </div>
