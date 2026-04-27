@@ -18,10 +18,9 @@ async function prepare() {
     }
 
     // 2. Clean/Create deploy-ready folder
-    if (fs.existsSync(deployDir)) {
-        fs.removeSync(deployDir);
-    }
-    fs.ensureDirSync(deployDir);
+    fs.emptyDirSync(deployDir);
+
+    // ... (Backend and client copying logic)
 
     // 3. Copy Backend files
     console.log('📂 Copying backend files...');
