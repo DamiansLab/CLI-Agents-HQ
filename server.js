@@ -148,7 +148,10 @@ io.on('connection', (socket) => {
   socket.on('worker-browse-response', (d) => io.emit('browse-response', d));
   socket.on('worker-read-file-response', (d) => io.emit('read-file-response', d));
   socket.on('worker-reflect-response', (d) => {
-    if (d.success && d.agentId) updateAgentProgress(d.agentId, d.reflection);
+    console.log(`[REFLECT RESPONSE] Agent: ${d.agentId}, Success: ${d.success}`);
+    if (d.success && d.agentId) {
+      updateAgentProgress(d.agentId, d.reflection);
+    }
     io.emit('reflect-response', d);
   });
 

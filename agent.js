@@ -268,18 +268,25 @@ async function start() {
     if (!fs.existsSync(filePath)) return socket.emit('worker-reflect-response', { requestId, error: "Skill file not found", agentId });
 
     const recentConversation = chatHistory.slice(-10).map(m => `${m.sender}: ${m.text}`).join('\n');
-    const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time? Provide exactly 3-4 bullet points starting with "-".\n\nCONVERSATION:\n${recentConversation}`;
+    const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time? Provide ONLY a list of 3-4 bullet points starting with "-". Do not include any preamble, thoughts, or explanations.\n\nCONVERSATION:\n${recentConversation}`;
 
     console.log(`[REFLECTING] Agent ${agentId} learning for skill ${skillId}...`);
 
     const proc = spawn('gemini', [`"${reflectionPrompt.replace(/"/g, '\\"')}"`], { shell: true, env: { ...process.env, FORCE_COLOR: "3", TERM: "xterm-256color" } });
-    let reflection = '';
-    proc.stdout.on('data', (data) => { reflection += data.toString(); });
+    let reflectionRaw = '';
+    proc.stdout.on('data', (data) => { reflectionRaw += data.toString(); });
     proc.on('close', (code) => {
-      if (code === 0 && reflection.trim()) {
+      // Filter to keep only the bullet points
+      const reflection = reflectionRaw
+        .split('\n')
+        .filter(line => line.trim().startsWith('-'))
+        .join('\n')
+        .trim();
+
+      if (code === 0 && reflection) {
         // PERMANENT LEARNING: Append the reflection to the skill file
         const timestamp = new Date().toLocaleDateString();
-        const learningEntry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection.trim()}\n`;
+        const learningEntry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection}\n`;
         try {
           fs.appendFileSync(filePath, learningEntry);
           socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId });

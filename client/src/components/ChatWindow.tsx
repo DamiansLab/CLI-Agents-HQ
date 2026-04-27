@@ -18,6 +18,8 @@ interface Agent {
   status?: 'idle' | 'thinking' | 'offline';
   chatHistory?: ChatMessage[];
   skillId?: string;
+  xp?: number;
+  level?: number;
 }
 
 interface ChatWindowProps {
@@ -44,21 +46,40 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, projectBrief, on
     }
   }, [agent.id, agent.hasNotification, socket]);
 
-  const handleReflect = async () => {
+  useEffect(() => {
+    if (!socket) return;
+    
+    const handleReflectResponse = (data: any) => {
+      if (data.agentId === agent.id) {
+        setIsReflecting(false);
+        if (data.success) {
+          // Update the local agent state immediately to trigger UI refresh (XP/Level)
+          onUpdateAgent(agent.id, { xp: (agent.xp || 0) + 100 }); 
+          alert(`Learned successfully!\n\n${data.reflection}`);
+        } else {
+          alert(`Error reflecting: ${data.error || 'Unknown error'}`);
+        }
+      }
+    };
+
+    socket.on('reflect-response', handleReflectResponse);
+    return () => {
+      socket.off('reflect-response', handleReflectResponse);
+    };
+  }, [socket, agent.id]);
+
+  const handleReflect = () => {
     if (!agent.skillId) return alert("Assign a role first.");
     if (messages.length < 2) return alert("Not enough conversation.");
 
+    if (!socket) return alert("Socket not connected.");
+
     setIsReflecting(true);
-    try {
-      const res = await fetch('/api/reflect', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ agentId: agent.id, skillId: agent.skillId, chatHistory: messages })
-      });
-      const data = await res.json();
-      if (data.success) alert(`Learned successfully!\n\n${data.reflection}`);
-    } catch (err) { alert("Error reflecting."); }
-    finally { setIsReflecting(false); }
+    socket.emit('trigger-reflect', { 
+      agentId: agent.id, 
+      skillId: agent.skillId, 
+      chatHistory: messages 
+    });
   };
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -146,7 +167,18 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, projectBrief, on
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <span style={{ fontSize: isFullScreen ? '32px' : '24px' }}>{agent.avatar}</span>
           <div>
-            <div style={{ fontSize: isFullScreen ? '16px' : '13px', fontWeight: 'bold', color: '#fff' }}>{agent.name}</div>
+            <div style={{ fontSize: isFullScreen ? '16px' : '13px', fontWeight: 'bold', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {agent.name}
+              {isReflecting && (
+                <motion.span 
+                  animate={{ opacity: [0.4, 1, 0.4], scale: [0.9, 1.1, 0.9] }} 
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  style={{ color: '#f1c40f', display: 'flex', alignItems: 'center' }}
+                >
+                  <Sparkles size={14} />
+                </motion.span>
+              )}
+            </div>
             <div style={{ fontSize: '9px', color: agent.status === 'thinking' ? '#f1c40f' : '#2ecc71', display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={statusDotStyle(agent.status)}/> {agent.status?.toUpperCase()}
             </div>
@@ -154,7 +186,19 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ agent, socket, projectBrief, on
         </div>
         <div style={{ display: 'flex', gap: '2px' }}>
           {agent.status === 'thinking' && <button onClick={stopAgent} style={headerBtnStyle} title="Stop"><StopCircle size={14} color="#e74c3c"/></button>}
-          <button onClick={handleReflect} disabled={isReflecting} style={{ ...headerBtnStyle, opacity: isReflecting ? 0.5 : 1 }} title="Reflect"><Sparkles size={14}/></button>
+          <motion.button 
+            onClick={handleReflect} 
+            disabled={isReflecting} 
+            animate={isReflecting ? { 
+              backgroundColor: ['rgba(241, 196, 15, 0.1)', 'rgba(241, 196, 15, 0.3)', 'rgba(241, 196, 15, 0.1)'],
+              boxShadow: ['0 0 0px rgba(241, 196, 15, 0)', '0 0 15px rgba(241, 196, 15, 0.4)', '0 0 0px rgba(241, 196, 15, 0)']
+            } : {}}
+            transition={{ repeat: Infinity, duration: 2 }}
+            style={{ ...headerBtnStyle, color: isReflecting ? '#f1c40f' : 'rgba(255,255,255,0.4)' }} 
+            title="Reflect"
+          >
+            <Sparkles size={14}/>
+          </motion.button>
           <button onClick={() => socket?.emit('restart-agent', { agentId: agent.id, directory: agent.workingDirectory })} style={headerBtnStyle} title="Restart"><RotateCcw size={14}/></button>
           <button onClick={() => onUpdateAgent(agent.id, { chatHistory: [] })} style={headerBtnStyle} title="Clear"><Trash2 size={14}/></button>
           <button onClick={() => setIsFullScreen(!isFullScreen)} style={headerBtnStyle} title={isFullScreen ? "Minimize" : "Maximize"}>

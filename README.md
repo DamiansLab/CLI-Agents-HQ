@@ -18,7 +18,8 @@ CLI Agents HQ bridges the gap between powerful AI execution and intuitive team m
 - **Hybrid Local Execution:** Securely connect your local terminal to an online dashboard. Your agents have full access to your local project files, while their progress and "Lessons Learned" are synced to the cloud.
 - **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
 - **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
-- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations, saving new insights permanently to their skill files.
+- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations. Their insights are now strictly filtered to provide clean, actionable bullet points directly to their skill files, ensuring their "memory" remains high-signal and free of conversational noise.
+- **Enhanced Visual Feedback:** The Dashboard now provides real-time visual cues during complex operations, such as pulsating glows and status icons, ensuring you always know when an agent is "thinking" or "reflecting".
 
 
 <img width="2440" height="1021" alt="581986525-23565329-8e42-4d74-adbf-c49d4880c5a2" src="https://github.com/user-attachments/assets/6130c541-84fe-42d0-86e6-f5b15b8bd2dd" />

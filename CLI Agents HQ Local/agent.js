@@ -11,31 +11,6 @@ let SECRET_KEY = process.env.CLI_AGENTS_SECRET_KEY;
 // Global state map for tracking active processes
 const processes = new Map(); // agentId -> { proc, cwd, lastPromptTime }
 
-const THEME = {
-  reset: "\x1b[0m",
-  bright: "\x1b[1m",
-  dim: "\x1b[2m",
-  blue: "\x1b[34m",
-  cyan: "\x1b[36m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  red: "\x1b[31m",
-  magenta: "\x1b[35m",
-  divider: "─────────────────────────────────────────────────"
-};
-
-const log = {
-  info: (msg) => console.log(`${THEME.cyan}ℹ${THEME.reset} ${msg}`),
-  success: (msg) => console.log(`${THEME.green}✔${THEME.reset} ${msg}`),
-  warn: (msg) => console.log(`${THEME.yellow}⚠${THEME.reset} ${msg}`),
-  error: (msg) => console.error(`${THEME.red}✘${THEME.reset} ${msg}`),
-  banner: () => {
-    console.log(`\n${THEME.blue}${THEME.bright}${THEME.divider}`);
-    console.log(` 🤖 CLI AGENTS HQ : SECURE LOCAL CONNECTOR`);
-    console.log(`${THEME.divider}${THEME.reset}`);
-  }
-};
-
 async function start() {
   const configPath = path.join(__dirname, '.agent-config.json');
   let savedConfig = { lastUrl: '', lastSecret: '' };
@@ -46,23 +21,23 @@ async function start() {
 
   if (!SERVER_URL || !SECRET_KEY) {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    log.banner();
+    console.log('\n--- 🤖 CLI Agents HQ: Secure Local Connector ---');
 
     if (!SERVER_URL) {
       const prompt = savedConfig.lastUrl ? `Enter Dashboard URL [Default: ${savedConfig.lastUrl}]: ` : 'Enter Dashboard URL: ';
-      const answer = await new Promise(res => rl.question(`${THEME.cyan}▶${THEME.reset} ${prompt}`, res));
+      const answer = await new Promise(res => rl.question(prompt, res));
       SERVER_URL = answer.trim() || savedConfig.lastUrl;
     }
 
     if (!SECRET_KEY) {
       const prompt = savedConfig.lastSecret ? `Enter Shared Secret Key [Default: ****]: ` : 'Enter Shared Secret Key: ';
-      const answer = await new Promise(res => rl.question(`${THEME.cyan}▶${THEME.reset} ${prompt}`, res));
+      const answer = await new Promise(res => rl.question(prompt, res));
       SECRET_KEY = answer.trim() || savedConfig.lastSecret;
     }
     rl.close();
 
     if (!SERVER_URL || !SECRET_KEY) {
-      log.error('URL and Secret Key are required.');
+      console.error('❌ Error: URL and Secret Key are required.');
       process.exit(1);
     }
 
@@ -76,31 +51,31 @@ async function start() {
   });
 
   socket.on('connect', () => {
-    log.success('Connected to Dashboard. Authenticating...');
+    console.log('✅ Connected to Dashboard. Authenticating...');
     socket.emit('register-worker', { secret: SECRET_KEY });
   });
 
   socket.on('connect_error', (err) => {
-    log.error(`Connection Error: ${err.message}`);
+    console.error(`\n❌ Connection Error: ${err.message}`);
     if (err.message.includes('xhr poll error')) {
-      console.log(`${THEME.dim} 👉 Hint: This usually means the server URL is wrong or the server is down.${THEME.reset}`);
+      console.log('👉 Hint: This usually means the server URL is wrong or the server is down.');
     } else if (err.message.includes('websocket error')) {
-      console.log(`${THEME.dim} 👉 Hint: The server is active, but your Proxy (Nginx/Plesk) is blocking WebSockets.${THEME.reset}`);
+      console.log('👉 Hint: The server is active, but your Proxy (Nginx/Plesk) is blocking WebSockets.');
     }
   });
 
   socket.on('auth-error', (data) => {
-    log.error(`Authentication Failed: ${data.message}`);
+    console.error(`\n❌ Authentication Failed: ${data.message}`);
     process.exit(1);
   });
 
   socket.on('disconnect', () => {
-    log.warn('Disconnected from Dashboard server');
+    console.log('Disconnected from Dashboard server');
   });
 
   socket.on('worker-start-terminal', ({ agentId, agentName, directory }) => {
     const cwd = directory || process.cwd();
-    log.info(`Initializing agent ${THEME.bright}${agentName || agentId}${THEME.reset} in ${THEME.dim}${cwd}${THEME.reset}`);
+    console.log(`Initializing agent ${agentName || agentId} in ${cwd}`);
     processes.set(agentId, { proc: null, cwd });
     socket.emit('worker-terminal-output', { agentId, data: `[Agent initialized in ${cwd}]\n` });
   });
@@ -117,13 +92,13 @@ async function start() {
     if (directory) agentData.cwd = directory;
     
     if (agentData.proc) {
-      log.info(`${THEME.bright}${agentName || agentId}${THEME.reset} ${THEME.dim}Receiving Input...${THEME.reset}`);
+      console.log(`[USER INPUT -> ${agentName || agentId}] ${message}`);
       agentData.proc.stdin.write(message + '\n');
       socket.emit('worker-terminal-output', { agentId, data: `\n[Input] > ${message}\n` });
       return;
     }
 
-    log.info(`${THEME.bright}${agentName || agentId}${THEME.reset} ${THEME.dim}Thinking... (Skill: ${skillId || 'none'})${THEME.reset}`);
+    console.log(`[USER -> ${agentName || agentId}] ${message} (Skill: ${skillId || 'none'})`);
     socket.emit('worker-agent-status', { agentId, status: 'thinking' });
     
     // On Windows, 'gemini' is usually 'gemini.cmd'. shell: true finds it and handles stdin piping correctly.
@@ -293,18 +268,25 @@ async function start() {
     if (!fs.existsSync(filePath)) return socket.emit('worker-reflect-response', { requestId, error: "Skill file not found", agentId });
 
     const recentConversation = chatHistory.slice(-10).map(m => `${m.sender}: ${m.text}`).join('\n');
-    const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time? Provide exactly 3-4 bullet points starting with "-".\n\nCONVERSATION:\n${recentConversation}`;
+    const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time? Provide ONLY a list of 3-4 bullet points starting with "-". Do not include any preamble, thoughts, or explanations.\n\nCONVERSATION:\n${recentConversation}`;
 
     console.log(`[REFLECTING] Agent ${agentId} learning for skill ${skillId}...`);
 
     const proc = spawn('gemini', [`"${reflectionPrompt.replace(/"/g, '\\"')}"`], { shell: true, env: { ...process.env, FORCE_COLOR: "3", TERM: "xterm-256color" } });
-    let reflection = '';
-    proc.stdout.on('data', (data) => { reflection += data.toString(); });
+    let reflectionRaw = '';
+    proc.stdout.on('data', (data) => { reflectionRaw += data.toString(); });
     proc.on('close', (code) => {
-      if (code === 0 && reflection.trim()) {
+      // Filter to keep only the bullet points
+      const reflection = reflectionRaw
+        .split('\n')
+        .filter(line => line.trim().startsWith('-'))
+        .join('\n')
+        .trim();
+
+      if (code === 0 && reflection) {
         // PERMANENT LEARNING: Append the reflection to the skill file
         const timestamp = new Date().toLocaleDateString();
-        const learningEntry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection.trim()}\n`;
+        const learningEntry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection}\n`;
         try {
           fs.appendFileSync(filePath, learningEntry);
           socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId });
