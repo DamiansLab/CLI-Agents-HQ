@@ -25,8 +25,6 @@ This document defines the foundational mandates and workflow for autonomously up
     - `<h3>🚗 Κατάλληλο για</h3>` with usage instructions.
     - `<h3>🔧 Τεχνικά Χαρακτηριστικά</h3>` including SKU, EAN-13, and Manufacturer.
 - **Implementation:** Use `tinyMCE` via `evaluate_script` to set content.
-- **Categorization:** Assign ONLY to the final subcategory (leaf node). Uncheck parent categories and "Χωρίς Αντιστοίχιση".
-- **Images:** Find and upload a clear product image (Resolution: 600x600 to 1000x1000 pixels).
 
 #### Tab: "Shipping" (Αποστολή)
 - **Package Size:** Fill Width, Height, Depth (cm) and Weight (kg) based on research.
