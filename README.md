@@ -18,8 +18,9 @@ CLI Agents HQ bridges the gap between powerful AI execution and intuitive team m
 - **Hybrid Local Execution:** Securely connect your local terminal to an online dashboard. Your agents have full access to your local project files, while their progress and "Lessons Learned" are synced to the cloud.
 - **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
 - **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
-- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations. Their insights are now strictly filtered to provide clean, actionable bullet points directly to their skill files, ensuring their "memory" remains high-signal and free of conversational noise.
-- **Enhanced Visual Feedback:** The Dashboard now provides real-time visual cues during complex operations, such as pulsating glows and status icons, ensuring you always know when an agent is "thinking" or "reflecting".
+- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations. Their insights are now strictly filtered and automatically synced between your local machine and the cloud.
+- **Automated Smart Sync:** Never lose knowledge when switching computers. The HQ now automatically handshakes and syncs skill files based on the latest timestamps.
+- **Windows Optimized:** Deep integration for Windows terminal encoding (UTF-8) and multi-nested process handling.
 
 
 <img width="2440" height="1021" alt="581986525-23565329-8e42-4d74-adbf-c49d4880c5a2" src="https://github.com/user-attachments/assets/6130c541-84fe-42d0-86e6-f5b15b8bd2dd" />
@@ -30,6 +31,9 @@ CLI Agents HQ bridges the gap between powerful AI execution and intuitive team m
 ---
 
 ## 🚀 How to Connect & Use
+
+### 💾 Persistence Note (Updates)
+When updating your HQ to a new version, **always preserve your `data.json` and `users.json` files** on the server. These files contain your agents' XP, levels, knowledge vault, and user accounts. If you are using the `prepare-deploy.js` script, ensure you download the live versions of these files to your local root before building, or exclude them from your server upload.
 
 ### 🔐 Default Login Credentials
 Upon first deployment, use these credentials to access the dashboard:
@@ -62,6 +66,15 @@ You can use the pre-bundled **CLI Agents HQ Local** folder, or set it up manuall
 ---
 
 ## 🆕 Changelogs
+
+### v1.7.0 (Smart Sync & Windows Power-Up)
+- **Automated Skill Sync:** Bi-directional synchronization for the `skills/` folder. The system now automatically detects which machine has the newest "Lessons Learned" and updates all connected instances (Server & Worker) instantly.
+- **Windows UTF-8 Fix:** Automated `chcp 65001` execution on startup. This eliminates Greek/Regional encoding errors (CP 737) and significantly speeds up terminal text streaming on Windows.
+- **Visual Reflection Feedback:**
+    - **Global Logs:** Successful reflections are now recorded in the System Logs with a brain icon (🧠) and knowledge snippets.
+    - **In-App Cues:** The Reflect button provides immediate "LEARNING..." and "SUCCESS!" states.
+- **Data Protection:** Updated `prepare-deploy.js` to include `users.json` in the deployment package.
+- **Stability:** Hardened reflection logic to remove disruptive `alert()` boxes and replaced them with non-blocking UI notifications.
 
 ### v1.6.0 (Unified Intelligence & Team Sync)
 - **Env Support:** Integrated `dotenv` for seamless configuration via `.env` files.

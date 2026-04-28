@@ -12,6 +12,16 @@ let SECRET_KEY = process.env.CLI_AGENTS_SECRET_KEY;
 const processes = new Map(); // agentId -> { proc, cwd, lastPromptTime }
 
 async function start() {
+  // --- Windows Encoding Fix ---
+  if (process.platform === 'win32') {
+    try {
+      require('child_process').execSync('chcp 65001', { stdio: 'ignore' });
+      console.log('🌐 Terminal encoding set to UTF-8.');
+    } catch (e) {
+      console.warn('⚠️ Failed to set terminal encoding to UTF-8.');
+    }
+  }
+
   const configPath = path.join(__dirname, '.agent-config.json');
   let savedConfig = { lastUrl: '', lastSecret: '' };
   
