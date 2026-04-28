@@ -53,6 +53,39 @@ async function start() {
   socket.on('connect', () => {
     console.log('✅ Connected to Dashboard. Authenticating...');
     socket.emit('register-worker', { secret: SECRET_KEY });
+
+    // --- Bi-directional Skill Sync ---
+    const skillsDir = path.join(__dirname, 'skills');
+    if (fs.existsSync(skillsDir)) {
+      const skillFiles = fs.readdirSync(skillsDir).filter(f => f.endsWith('.md'));
+      const skillData = skillFiles.map(file => {
+        const filePath = path.join(skillsDir, file);
+        const stats = fs.statSync(filePath);
+        return {
+          id: file.replace('.md', ''),
+          mtime: stats.mtimeMs,
+          content: fs.readFileSync(filePath, 'utf8')
+        };
+      });
+      console.log(`[SYNC] Sending ${skillData.length} skills to server for sync handshake...`);
+      socket.emit('worker-sync-skills', skillData);
+    }
+  });
+
+  socket.on('update-local-skills', (skills) => {
+    console.log(`[SYNC] Server has ${skills.length} newer skills. Updating local files...`);
+    skills.forEach(skill => {
+      const filePath = path.join(__dirname, 'skills', `${skill.id}.md`);
+      try {
+        fs.writeFileSync(filePath, skill.content);
+        // Manually set mtime to match server for future syncs
+        const time = skill.mtime / 1000;
+        fs.utimesSync(filePath, time, time);
+        console.log(`[SYNC] Updated: ${skill.id}.md`);
+      } catch (err) {
+        console.error(`[SYNC ERROR] Failed to update ${skill.id}:`, err.message);
+      }
+    });
   });
 
   socket.on('connect_error', (err) => {
@@ -289,12 +322,12 @@ async function start() {
         const learningEntry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection}\n`;
         try {
           fs.appendFileSync(filePath, learningEntry);
-          socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId });
+          socket.emit('worker-reflect-response', { requestId, success: true, reflection: reflection.trim(), agentId, skillId });
         } catch (err) {
-          socket.emit('worker-reflect-response', { requestId, error: "Failed to save learning: " + err.message, agentId });
+          socket.emit('worker-reflect-response', { requestId, error: "Failed to save learning: " + err.message, agentId, skillId });
         }
       } else {
-        socket.emit('worker-reflect-response', { requestId, error: "Reflection failed", agentId });
+        socket.emit('worker-reflect-response', { requestId, error: "Reflection failed", agentId, skillId });
       }
     });
   });

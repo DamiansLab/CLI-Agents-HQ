@@ -141,6 +141,40 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('worker-sync-skills', (workerSkills) => {
+    console.log(`[SYNC] Handshake started with ${workerSkills.length} local skills.`);
+    const skillsToDownload = []; // Server has newer version
+    
+    workerSkills.forEach(wSkill => {
+      const serverPath = path.join(skillsDirPath, `${wSkill.id}.md`);
+      
+      if (fs.existsSync(serverPath)) {
+        const serverStat = fs.statSync(serverPath);
+        if (wSkill.mtime > serverStat.mtimeMs) {
+          // Worker is newer -> Update Server
+          console.log(`[SYNC] Worker '${wSkill.id}' is newer. Updating Server...`);
+          fs.writeFileSync(serverPath, wSkill.content);
+        } else if (serverStat.mtimeMs > wSkill.mtime + 1000) { // 1s grace period
+          // Server is newer -> Prepare Download for Worker
+          console.log(`[SYNC] Server '${wSkill.id}' is newer. Preparing for Worker...`);
+          skillsToDownload.push({ 
+            id: wSkill.id, 
+            content: fs.readFileSync(serverPath, 'utf8'),
+            mtime: serverStat.mtimeMs 
+          });
+        }
+      } else {
+        // Server doesn't have it -> Update Server
+        console.log(`[SYNC] Server missing '${wSkill.id}'. Creating...`);
+        fs.writeFileSync(serverPath, wSkill.content);
+      }
+    });
+
+    if (skillsToDownload.length > 0) {
+      socket.emit('update-local-skills', skillsToDownload);
+    }
+  });
+
   // RELAY: Worker -> All Dashboard Clients
   socket.on('worker-terminal-output', (d) => io.emit('terminal-output', d));
   socket.on('worker-agent-response', (d) => io.emit('agent-response', d));
@@ -219,6 +253,20 @@ function updateAgentProgress(agentId, reflection) {
   state.workstations = state.workstations.map(a => (a?.id === agentId ? { ...a, ...updates } : a));
   state.breakRoomAgents = state.breakRoomAgents.map(a => (a?.id === agentId ? { ...a, ...updates } : a));
   
+  // Permanent Knowledge Sync: Update server-side skill file
+  if (agent && agent.skillId && reflection) {
+    const skillPath = path.join(skillsDirPath, `${agent.skillId}.md`);
+    const timestamp = new Date().toLocaleDateString();
+    const entry = `\n\n### 🧠 Lessons Learned (${timestamp})\n${reflection}\n`;
+    try {
+      if (fs.existsSync(skillPath)) {
+        fs.appendFileSync(skillPath, entry);
+      }
+    } catch (err) {
+      console.error(`[SYNC ERROR] Failed to update skill file ${agent.skillId}:`, err);
+    }
+  }
+
   saveState(state);
   io.emit('agent-updated', { agentId, updates });
 }

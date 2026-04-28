@@ -70,6 +70,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
   const [browseError, setBrowseError] = useState<string | null>(null);
   const [isReflecting, setIsReflecting] = useState(false);
   
+  const [showReflectSuccess, setShowReflectSuccess] = useState(false);
+  
   const terminalHistory = agent.terminalHistory || [];
   const [terminalInput, setTerminalInput] = useState("");
   const terminalEndRef = useRef<HTMLDivElement>(null);
@@ -105,8 +107,10 @@ const AgentCard: React.FC<AgentCardProps> = ({
     const handleReflectRes = (data: any) => {
       if (data.agentId === agent.id) {
         setIsReflecting(false);
-        if (data.success) alert(`Learned successfully!\n\n${data.reflection}`);
-        else alert(`Reflection failed: ${data.error}`);
+        if (data.success) {
+          setShowReflectSuccess(true);
+          setTimeout(() => setShowReflectSuccess(false), 3000);
+        }
       }
     };
 
@@ -242,8 +246,8 @@ const AgentCard: React.FC<AgentCardProps> = ({
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <div style={toolbarStyle}>
                 {agent.status === 'thinking' && <button onClick={stopAgent} style={toolBtnStyle('#e74c3c')}><StopCircle size={14}/> STOP</button>}
-                <button onClick={handleReflect} disabled={isReflecting || chatMessages.length < 2} style={toolBtnStyle('#673ab7')}>
-                  <Sparkles size={14}/> {isReflecting ? "LEARNING..." : "REFLECT"}
+                <button onClick={handleReflect} disabled={isReflecting || chatMessages.length < 2} style={toolBtnStyle(showReflectSuccess ? '#2ecc71' : '#673ab7')}>
+                  <Sparkles size={14}/> {isReflecting ? "LEARNING..." : (showReflectSuccess ? "SUCCESS!" : "REFLECT")}
                 </button>
               </div>
               <div style={{ flexGrow: 1, overflowY: 'auto', marginBottom: '15px', padding: '10px', background: 'rgba(15, 15, 20, 0.7)', backdropFilter: 'blur(10px)', borderRadius: '8px' }}>

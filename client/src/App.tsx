@@ -263,6 +263,22 @@ function App() {
       updateAgent(agentId, updates);
     });
 
+    socketRef.current.on('reflect-response', ({ agentId, success, reflection, error }) => {
+      const agent = [...workstationsRef.current, ...breakRoomAgentsRef.current].find(a => a?.id === agentId);
+      const agentName = agent?.name || `Agent ${agentId.substr(0,4)}`;
+      
+      if (success) {
+        addLog(`🧠 ${agentName} successfully reflected! New knowledge added.`, 'success');
+        // If there's a reflection text, we could also log a snippet of it
+        if (reflection) {
+          const snippet = reflection.split('\n')[0];
+          addLog(`📝 Learning: ${snippet}...`, 'info');
+        }
+      } else {
+        addLog(`❌ ${agentName} reflection failed: ${error || 'Unknown error'}`, 'error');
+      }
+    });
+
     socketRef.current.on('terminal-output', ({ agentId, data, type }) => {
       if (type === 'error') {
         const agent = [...workstationsRef.current, ...breakRoomAgentsRef.current].find(a => a?.id === agentId);
