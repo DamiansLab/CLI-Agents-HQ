@@ -4,6 +4,7 @@ const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const readline = require('readline');
+const crypto = require('crypto');
 
 let SERVER_URL = process.env.SERVER_URL;
 let SECRET_KEY = process.env.CLI_AGENTS_SECRET_KEY;
@@ -71,13 +72,16 @@ async function start() {
       const skillData = skillFiles.map(file => {
         const filePath = path.join(skillsDir, file);
         const stats = fs.statSync(filePath);
+        const content = fs.readFileSync(filePath, 'utf8');
+        const hash = crypto.createHash('md5').update(content).digest('hex');
         return {
           id: file.replace('.md', ''),
           mtime: stats.mtimeMs,
-          content: fs.readFileSync(filePath, 'utf8')
+          content,
+          hash
         };
       });
-      console.log(`[SYNC] Sending ${skillData.length} skills to server for sync handshake...`);
+      console.log(`[SYNC] Sending ${skillData.length} skills to server for sync handshake (Content-Aware)...`);
       socket.emit('worker-sync-skills', skillData);
     }
   });
@@ -185,16 +189,23 @@ async function start() {
                        text.match(/\(\d+-\d+\)/) || 
                        trimmed.endsWith('Selection:') || 
                        trimmed.endsWith('Confirm?') || 
-                       (trimmed.endsWith('?') && trimmed.length < 50 && !trimmed.includes('\n')) ||
-                       (trimmed.endsWith(':') && trimmed.length < 30 && !trimmed.includes('\n'))) &&
-                       !trimmed.toLowerCase().includes('result:');
+                       trimmed.endsWith('>') ||
+                       (trimmed.endsWith('?') && trimmed.length < 60 && !trimmed.includes('\n')) ||
+                       (trimmed.endsWith(':') && trimmed.length < 40 && !trimmed.includes('\n'))) &&
+                       !trimmed.toLowerCase().includes('result:') &&
+                       !trimmed.toLowerCase().includes('output:');
 
-      if (isPrompt && (!agentData.lastPromptTime || Date.now() - agentData.lastPromptTime > 5000)) {
-        agentData.lastPromptTime = Date.now();
-        socket.emit('worker-agent-response', { 
-          agentId, 
-          text: "⚠️ I'm waiting for your input. You can type your choice (e.g. 1, 'yes', or a specific name) right here in the chat or in the terminal." 
-        });
+      if (isPrompt) {
+        socket.emit('worker-agent-status', { agentId, status: 'awaiting-input' });
+        if (!agentData.lastPromptTime || Date.now() - agentData.lastPromptTime > 5000) {
+          agentData.lastPromptTime = Date.now();
+          socket.emit('worker-agent-response', { 
+            agentId, 
+            text: "🔍 I'm waiting for your input (see terminal above)." 
+          });
+        }
+      } else {
+        socket.emit('worker-agent-status', { agentId, status: 'thinking' });
       }
     });
 
@@ -311,7 +322,15 @@ async function start() {
     if (!fs.existsSync(filePath)) return socket.emit('worker-reflect-response', { requestId, error: "Skill file not found", agentId });
 
     const recentConversation = chatHistory.slice(-10).map(m => `${m.sender}: ${m.text}`).join('\n');
-    const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time? Provide ONLY a list of 3-4 bullet points starting with "-". Do not include any preamble, thoughts, or explanations.\n\nCONVERSATION:\n${recentConversation}`;
+    const reflectionPrompt = `Based on our recent conversation below, what unique preferences, technical constraints, or "Lessons Learned" should you remember for next time?
+Return your answer in the following JSON format:
+{
+  "lessons": ["Unique preference...", "Technical constraint...", "Lesson learned..."]
+}
+Ensure it is a valid JSON object. Provide ONLY the JSON. Do not include any preamble, thoughts, or markdown code blocks.
+
+CONVERSATION:
+${recentConversation}`;
 
     console.log(`[REFLECTING] Agent ${agentId} learning for skill ${skillId}...`);
 
@@ -319,12 +338,18 @@ async function start() {
     let reflectionRaw = '';
     proc.stdout.on('data', (data) => { reflectionRaw += data.toString(); });
     proc.on('close', (code) => {
-      // Filter to keep only the bullet points
-      const reflection = reflectionRaw
-        .split('\n')
-        .filter(line => line.trim().startsWith('-'))
-        .join('\n')
-        .trim();
+      let reflection = '';
+      try {
+        const jsonMatch = reflectionRaw.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const data = JSON.parse(jsonMatch[0]);
+          if (Array.isArray(data.lessons)) {
+            reflection = data.lessons.map(l => `- ${l}`).join('\n');
+          }
+        }
+      } catch (e) {
+        console.error('[REFLECT ERROR] Failed to parse JSON reflection:', e.message);
+      }
 
       if (code === 0 && reflection) {
         // PERMANENT LEARNING: Append the reflection to the skill file

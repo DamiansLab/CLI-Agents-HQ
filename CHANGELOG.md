@@ -2,6 +2,22 @@
 
 All notable changes to the **CLI Agents HQ** project will be documented in this file.
 
+## [1.8.0] - 2026-05-04
+### Added
+- **Reliability Overhaul:**
+  - **Fail-Fast Security:** Server now requires `JWT_SECRET` and `CLI_AGENTS_SECRET_KEY` env vars to start, preventing insecure default deployments.
+  - **Session Persistence:** Full chat history is now persisted in `data.json`, allowing recovery from worker or client disconnects.
+  - **Multi-Worker Routing:** New `agentToWorker` mapping allows multiple local machines to connect to a single HQ simultaneously.
+  - **Stall Detection:** 60-second heartbeat monitor alerts the UI if an AI process hangs.
+  - **Knowledge Vault Search:** Added a server-side search API to filter snippets by title or content.
+- **Robust Skill Sync:** Migrated from timestamp-only sync to **MD5 Content Hashing**, eliminating redundant writes and sync race conditions.
+- **Terminal Overhaul:**
+  - Improved interactive prompt detection with specialized regex.
+  - New `awaiting-input` agent status for better visual feedback in the dashboard.
+- **Engineering Standards:**
+  - **Test Suite:** Established a formal `tests/` directory with `npm test` integration (6 core suites).
+  - **Modular Architecture:** Refactored the monolithic `server.js` into clean components in `lib/` (`stateManager`, `userManager`).
+
 ## [1.7.0] - 2026-04-28
 ### Added
 - **Automated Skill Sync:** Implemented bi-directional synchronization for the `skills/` folder. The system uses "Last Modified" timestamps to ensure the newest version of an agent's knowledge is always used, whether it's on the server or a local machine.

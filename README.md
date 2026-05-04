@@ -16,12 +16,14 @@ CLI Agents HQ is a professional management hub for your Gemini CLI agents. It tr
 CLI Agents HQ bridges the gap between powerful AI execution and intuitive team management. It allows you to:
 - **Orchestrate specialized teams:** "Hire" multiple agents and assign them expert roles (Architect, Security Auditor, Test Engineer, etc.) from a library of custom skills.
 - **Hybrid Local Execution:** Securely connect your local terminal to an online dashboard. Your agents have full access to your local project files, while their progress and "Lessons Learned" are synced to the cloud.
+- **Session Persistence (New):** Never lose a conversation. Full chat histories are now persisted on the server, allowing you to resume tasks even after a network disconnect.
+- **Multi-Worker Routing (New):** Scale your team across multiple physical machines. The HQ now supports multiple concurrent local workers with sticky routing.
+- **Stall & Health Monitoring:** Real-time heartbeat detection alerts you if an agent process hangs or takes too long to respond.
+- **Knowledge Search:** Efficiently filter through your Knowledge Vault with a new server-side search engine.
 - **Collaborative Brainstorming:** Use the **Conference Room** to start group chats where specialists build upon each other's ideas to solve complex problems.
 - **Unified Knowledge:** Feed a global **Project Brief** or specific **Knowledge Vault** snippets to your entire team simultaneously.
-- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations. Their insights are now strictly filtered and automatically synced between your local machine and the cloud.
-- **Automated Smart Sync:** Never lose knowledge when switching computers. The HQ now automatically handshakes and syncs skill files based on the latest timestamps.
+- **Persistent Evolution:** Agents gain XP and level up from Junior to Senior as they "Reflect & Learn" from your conversations. Their insights are now extracted via structured JSON and synced using **MD5 Content Hashing** for maximum reliability.
 - **Windows Optimized:** Deep integration for Windows terminal encoding (UTF-8) and multi-nested process handling.
-
 
 <img width="2440" height="1021" alt="581986525-23565329-8e42-4d74-adbf-c49d4880c5a2" src="https://github.com/user-attachments/assets/6130c541-84fe-42d0-86e6-f5b15b8bd2dd" />
 <img width="1911" height="894" alt="581976571-b87cfddb-2cd6-46e8-bbf1-55dc1a899ea1" src="https://github.com/user-attachments/assets/05b23980-edf4-4460-9ed1-65cd057a3778" />
@@ -40,6 +42,13 @@ Upon first deployment, use these credentials to access the dashboard:
 - **Username:** `Admin`
 - **Password:** `admin123`
 - *⚠️ IMPORTANT: Change your password in the **👥 USERS** menu immediately after logging in.*
+
+### 🛠️ Development & Testing
+The project now includes a formal test suite to ensure architectural integrity.
+```bash
+npm install
+npm test
+```
 
 ### 1. Deploy the HQ (Server)
 1. Upload the `deploy-ready` folder to your Plesk server.

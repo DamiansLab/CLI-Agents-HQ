@@ -1,17 +1,6 @@
 {
   "workstations": [
-    {
-      "id": "0uaeu7yxu",
-      "name": "Alice #498",
-      "avatar": "👩‍💻",
-      "hasNotification": false,
-      "status": "idle",
-      "chatHistory": [],
-      "xp": 0,
-      "level": 1,
-      "terminalHistory": [],
-      "workingDirectory": "C:\\"
-    },
+    null,
     null,
     null,
     null,
@@ -23,20 +12,20 @@
     null
   ],
   "breakRoomAgents": [],
-  "logs": [
+  "logs": [],
+  "globalContext": "",
+  "knowledgeVault": [
     {
-      "id": "exvebaamy",
-      "timestamp": "12:28:33 μ.μ.",
-      "message": "Alice #498 is now working in: C:\\",
-      "type": "info"
+      "title": "React Hooks",
+      "content": "useEffect and useState are core."
     },
     {
-      "id": "kbm5k7yhe",
-      "timestamp": "12:28:33 μ.μ.",
-      "message": "Alice #498 is now working in: C:\\",
-      "type": "info"
+      "title": "Node.js Streams",
+      "content": "Piping data efficiently."
+    },
+    {
+      "title": "Socket.io",
+      "content": "Real-time communication."
     }
-  ],
-  "globalContext": "",
-  "knowledgeVault": []
+  ]
 }

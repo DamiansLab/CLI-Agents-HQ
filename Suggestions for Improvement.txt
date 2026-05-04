@@ -1,0 +1,22 @@
+-Architecture & Reliability
+
+Single worker assumption — the server grabs Array.from(workers.values())[0], so it silently breaks with multiple workers. Needs proper worker routing/selection.
+No recovery for mid-task disconnects — if the worker or server drops during a Gemini process, conversation context is lost. Some form of session persistence or reconnect-resume would help.
+File sync race conditions — skill syncing uses basic timestamp comparison with a 1-second grace period. Could be replaced with content hashing or a proper conflict resolution strategy.
+
+
+-Security
+
+Default secrets in code — JWT and session secrets have hardcoded fallbacks. These should fail loudly if env vars are missing rather than silently using defaults.
+Input sanitization — terminal I/O is relayed between browser and shell processes; worth auditing for injection vectors.
+Code Quality
+
+Zero test coverage — no tests exist at all. Even basic integration tests for the Socket.io handshake and skill sync would catch regressions.
+Brittle reflection parsing — the "Lessons Learned" extraction uses regex to find bullet points in AI output. Any format change in Gemini's responses breaks it. A more structured extraction (e.g., asking for JSON output) would be more robust.
+Large monolithic server file — the Express/Socket.io server handles routing, auth, skill sync, process management, and file ops in one place. Splitting into modules would improve maintainability.
+
+-UX & Features
+
+No feedback when agents stall — if a Gemini process hangs, there's no timeout or user-visible indicator. Adding health checks or a "stuck agent" detection would help.
+Knowledge vault is flat JSON — as the vault grows, searching and organizing entries will get painful. Tags, categories, or full-text search would scale better.
+Agent skill assignment is manual — could suggest skills based on the agent's role or the task description automatically.

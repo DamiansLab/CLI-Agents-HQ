@@ -29,6 +29,8 @@ async function prepare() {
         'package.json',
         'package-lock.json',
         'data.json',
+        'users.json',
+        'lib',
         'skills',
         '.env.example'
     ];
