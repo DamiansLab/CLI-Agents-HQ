@@ -1,11 +1,35 @@
-<img width="512" height="512" alt="android-chrome-512x512" src="https://github.com/user-attachments/assets/5b7033f8-108e-4a5b-810a-b51d98d385b1" />
-
-
+<p align="center">
+  <img src="banner.png" width="100%" alt="CLI Agents HQ Banner" />
+</p>
 
 # 🤖 CLI Agents HQ
 ### Secure, Multi-Agent Orchestration & Hybrid AI Dashboard
 
 CLI Agents HQ is a professional management hub for your Gemini CLI agents. It transforms individual terminal interactions into a cohesive, team-based environment, allowing you to coordinate multiple AI specialists from a single, centralized command center.
+
+---
+
+## 🏛️ System Architecture
+
+```mermaid
+graph TD
+    subgraph Local Environment
+        T[Terminal] -->|CLI Commands| W(Local Worker)
+        W -->|Reads/Writes| F[(Local Files/Project)]
+    end
+    
+    subgraph Cloud Dashboard
+        D{Next.js Admin Panel}
+        D -->|WebSockets| S(Socket.io Server)
+    end
+    
+    W <==>|Secure Bi-directional Sync| S
+    S -->|Real-time UI| D
+    
+    classDef default fill:#0A0A0B,stroke:#F18E45,stroke-width:1px,color:#f1f1f1;
+    classDef highlight fill:#F18E45,stroke:#fff,stroke-width:0px,color:#0a0a0b;
+    class D highlight
+```
 
 ---
 
