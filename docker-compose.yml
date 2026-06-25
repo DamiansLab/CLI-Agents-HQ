@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: agents_web
+    restart: always
+    ports:
+      - "127.0.0.1:3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - HOSTNAME=0.0.0.0
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"   # Μέγιστο μέγεθος ανά αρχείο log
+        max-file: "3"     # Κρατάει έως 3 αρχεία (max 30MB συνολικά)
